@@ -56,7 +56,8 @@ html,body{margin:0;height:100%;background:var(--mar);color:var(--crema);font-fam
 #miNombre{font-family:var(--titulo);font-weight:600;font-size:15px;color:var(--suave)}
 #bRobar{border:0;border-radius:12px;background:var(--oro);color:var(--tinta);font:inherit;font-weight:700;font-size:16px;padding:9px 14px;cursor:pointer;box-shadow:0 3px 0 var(--oro2)}
 #bRobar:disabled{opacity:.45}
-#mano{display:flex;flex-wrap:wrap;justify-content:center}
+#mano{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 2px 6px}
+#mano>.carta{flex:0 0 auto}#mano>.carta:first-child{margin-left:auto}#mano>.carta:last-child{margin-right:auto}
 /* la carta */
 .carta{position:relative;width:84px;height:118px;margin:4px;border-radius:14px;border:4px solid #fff;background:#fff;color:var(--tinta);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;box-shadow:0 4px 0 rgba(0,0,0,.25),0 8px 14px rgba(0,0,0,.25);font-family:var(--letra);cursor:pointer}
 button.carta{font:inherit}
@@ -70,7 +71,9 @@ button.carta:active{-webkit-transform:translateY(3px);transform:translateY(3px)}
 .carta.amarillo{border-color:var(--amarillo)}.carta.amarillo::before,.carta.amarillo::after{background:var(--amarillo)}
 .carta.negra{border-color:#2a2a2a;background:linear-gradient(135deg,#E0473C 0 25%,#2E7CD6 25% 50%,#2FA866 50% 75%,#F2C230 75%)}
 .carta.negra .esp,.carta.negra .son{background:#fff;border-radius:10px;padding:0 6px}
-.carta .pal{font-weight:700;font-size:17px;line-height:1.1;text-align:center;word-break:break-word}
+.carta .pal{font-weight:700;font-size:17px;line-height:1.1;text-align:center;word-break:normal;overflow-wrap:normal}
+.carta.larga .pal{font-size:14px}.carta.muy-larga .pal{font-size:12px;letter-spacing:-.2px}
+.carta.grande.larga .pal{font-size:21px}.carta.grande.muy-larga .pal{font-size:17px}
 .carta .son{font-size:11px;font-weight:700;color:#4d6457;margin-top:4px;text-align:center}
 .carta .esp{font-family:var(--titulo);font-weight:600;font-size:34px;line-height:1}
 .carta.grande{width:124px;height:172px;border-width:6px}
@@ -105,7 +108,7 @@ button.carta:active{-webkit-transform:translateY(3px);transform:translateY(3px)}
 #tapaQuien.j0{color:var(--verde2)}#tapaQuien.j1{color:#C25E14}
 .cartas-ejemplo{display:flex;justify-content:center;margin:8px 0 4px}
 .cartas-ejemplo .carta{width:74px;height:104px;cursor:default}
-@media (max-width:400px){.carta{width:70px;height:100px;margin:3px}.carta .pal{font-size:15px}.carta.grande{width:108px;height:150px}.carta.grande .pal{font-size:22px}}
+@media (max-width:400px){.carta{width:66px;height:96px;margin:3px}.carta.larga .pal{font-size:13px}.carta.muy-larga .pal{font-size:11px}.carta .pal{font-size:15px}.carta.grande{width:108px;height:150px}.carta.grande .pal{font-size:22px}}
 @media (max-height:640px){.carta.grande{width:96px;height:134px}.carta{width:66px;height:94px}.carta .pal{font-size:14px}#rival{min-height:46px}}
 @media (prefers-reduced-motion:reduce){.carta.mal{-webkit-animation:none;animation:none}.ultima{transition:none}}
 </style>

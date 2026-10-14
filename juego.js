@@ -159,6 +159,7 @@
     if (opts.boton) b.type = 'button';
     if (opts.oculta) { b.appendChild(el('span', 'dorso', '♪')); return b; }
     if (c.tipo === 'palabra') {
+      if (c.w.length >= 10) b.className += ' muy-larga'; else if (c.w.length >= 7) b.className += ' larga';
       b.appendChild(el('span', 'pal', c.w));
       if (OPC.pista) b.appendChild(el('span', 'son', nombreClave(c.son)));
       b.setAttribute('aria-label', c.w + ', carta ' + NOMBRE_COLOR[c.color].toLowerCase());
