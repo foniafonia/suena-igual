@@ -88,11 +88,12 @@
   function enlaceParams() {
     var p = ['regla=' + E.regla];
     if (E.regla === 'par') p.push('par=' + E.par); else if (E.foco && E.regla === 'inicio') p.push('foco=' + E.foco);
+    if (E.pron === 'seseo') p.push('pron=seseo'); else p.push('pron=es');
     if (E.modo === 'dos') p.push('modo=dos'); if (E.mano === 7) p.push('mano=7'); if (E.pista) p.push('pista=1');
     return '?' + p.join('&');
   }
   function abrePrepara() {
-    E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista };
+    E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron };
     portada.className = 'velo portada'; $('vInicio').className = 'velo'; $('vFin').className = 'velo';
     pintaPrepara(); prep.className = 'velo portada on';
   }
@@ -102,6 +103,7 @@
     tq.appendChild(el('h2', null, '1 · ¿Qué quieres trabajar?'));
     var ob = el('div', 'objs');
     OBJ.forEach(function (o) {
+      if (E.pron === 'seseo' && o[0] === 'sz') return;
       var c = o[3], on = c.regla === E.regla && (c.regla === 'par' ? c.par === E.par : (c.regla === 'inicio' ? c.foco === E.foco : true));
       var b = el('button', on ? 'on' : ''); b.type = 'button'; b.appendChild(document.createTextNode(o[1])); b.appendChild(el('small', null, o[2]));
       b.onclick = function () { E.regla = c.regla; E.foco = c.foco || ''; if (c.par) E.par = c.par; pintaPrepara(); };
@@ -113,7 +115,10 @@
     var m = campo('Jugadores', 'pModo'); f.appendChild(m[0]); opt(m[1], [['maquina', 'Contra la máquina'], ['dos', 'Dos jugadores']], E.modo); m[1].onchange = function () { E.modo = m[1].value; };
     var n = campo('Cartas en la mano', 'pMano'); f.appendChild(n[0]); opt(n[1], [['5', '5 (más corta)'], ['7', '7']], String(E.mano)); n[1].onchange = function () { E.mano = parseInt(n[1].value, 10); };
     var pi = campo('Ayuda', 'pPista'); f.appendChild(pi[0]); opt(pi[1], [['0', 'Sin pista: tiene que oírlo'], ['1', 'Con pista: la carta dice el sonido']], E.pista ? '1' : '0'); pi[1].onchange = function () { E.pista = pi[1].value === '1'; };
+    var pr = campo('Pronunciación', 'pPron'); f.appendChild(pr[0]); opt(pr[1], [['es', 'España: Z y S distintas'], ['seseo', 'Con seseo: Latinoamérica, Canarias…']], E.pron);
+    pr[1].onchange = function () { E.pron = pr[1].value; if (E.pron === 'seseo' && E.par === 'sz' && E.regla === 'par') E.par = 'rl'; pintaPrepara(); };
     tq.appendChild(f);
+    if (E.pron === 'seseo') tq.appendChild(el('p', 'nota', 'Con seseo salen de la baraja las palabras con Z, CE o CI: la voz del juego es de España y las pronuncia con Z.'));
     var r = el('div', 'resumen', 'Casan por color o por ' + resumenRegla()); tq.appendChild(r);
     var bj = el('button', 'btn', '▶ Jugar ahora'); bj.type = 'button'; bj.onclick = function () { aplica(); prep.className = 'velo portada'; S.muestraInicio(); suma('suena_partida_preparada'); };
     var be = el('button', 'btn s', '🔗 Enlace para la familia'); be.type = 'button';
@@ -141,7 +146,7 @@
     if (E.regla === 'silabas') return 'el mismo número de sílabas';
     return pr[E.par];
   }
-  function aplica() { O.regla = E.regla; O.foco = E.foco; O.par = E.par; O.modo = E.modo; O.mano = E.mano; O.pista = E.pista; S.guardaOpc(); }
+  function aplica() { O.regla = E.regla; O.foco = E.foco; O.par = E.par; O.modo = E.modo; O.mano = E.mano; O.pista = E.pista; O.pron = E.pron; S.guardaOpc(); }
   function copia(t, donde) {
     function dicho(ok) { donde.textContent = ok ? '✔ Copiado.' : 'No se ha podido copiar: mantén pulsado el texto y cópialo a mano.'; }
     try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(function () { dicho(true); }, function () { dicho(false); }); return; } } catch (e) { }

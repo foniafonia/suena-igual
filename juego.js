@@ -26,11 +26,20 @@
     par: PARES[QS.get('par')] ? QS.get('par') : 'rl',
     modo: QS.get('modo') === 'dos' ? 'dos' : 'maquina',
     mano: QS.get('mano') === '7' ? 7 : 5,
-    pista: QS.get('pista') === '1'
+    pista: QS.get('pista') === '1',
+    /* Con seseo (Latinoamérica, Canarias, buena parte de Andalucía) «cena» y «zapato» empiezan por S,
+       pero la voz del juego es de España y las dice con Z. Para no contradecir lo que se oye, con
+       seseo esas palabras salen de la baraja y el par S/Z no se ofrece. Por defecto, según el idioma
+       del aparato: español de España → distinción; cualquier otro español → seseo. */
+    pron: (function () {
+      var p = QS.get('pron'); if (p === 'seseo' || p === 'es') return p;
+      var l = String(navigator.language || '').toLowerCase(); return /^es-(?!es)/.test(l) ? 'seseo' : 'es';
+    })()
   };
   var KOPC = 'suena-igual-opc';
-  if (!FIJO) { try { var g = JSON.parse(localStorage.getItem(KOPC) || 'null'); if (g && REGLAS.indexOf(g.regla) >= 0) { OPC.regla = g.regla; OPC.foco = g.foco || ''; OPC.par = PARES[g.par] ? g.par : 'rl'; OPC.modo = g.modo === 'dos' ? 'dos' : 'maquina'; OPC.mano = g.mano === 7 ? 7 : 5; OPC.pista = !!g.pista; } } catch (e) { } }
+  if (!FIJO) { try { var g = JSON.parse(localStorage.getItem(KOPC) || 'null'); if (g && REGLAS.indexOf(g.regla) >= 0) { OPC.regla = g.regla; OPC.foco = g.foco || ''; OPC.par = PARES[g.par] ? g.par : 'rl'; OPC.modo = g.modo === 'dos' ? 'dos' : 'maquina'; OPC.mano = g.mano === 7 ? 7 : 5; OPC.pista = !!g.pista; if (!QS.get('pron') && (g.pron === 'seseo' || g.pron === 'es')) OPC.pron = g.pron; } } catch (e) { } }
   if (FIJO) document.body.className += ' fijado';
+  if (OPC.pron === 'seseo' && OPC.par === 'sz') OPC.par = 'rl';
   function guardaOpc() { if (FIJO) return; try { localStorage.setItem(KOPC, JSON.stringify(OPC)); } catch (e) { } }
 
   /* ====================== la regla ====================== */
@@ -74,7 +83,7 @@
      diez palabras por grupo repartidas en los cuatro colores, y ocho cartas especiales. */
   function grupos() {
     var por = {};
-    BANCO.forEach(function (p) { var k = clave(p[0], p[1]); if (k === null || k === undefined) return; (por[k] = por[k] || []).push(p); });
+    BANCO.forEach(function (p) { if (OPC.pron === 'seseo' && F.tiene(p[0], 'z')) return; var k = clave(p[0], p[1]); if (k === null || k === undefined) return; (por[k] = por[k] || []).push(p); });
     if (OPC.regla === 'par') return PARES[OPC.par].map(function (k) { return [k, por[k] || []]; });
     var lista = Object.keys(por).map(function (k) { return [k, por[k]]; }).filter(function (x) { return x[1].length >= 5; }).sort(function (a, b) { return b[1].length - a[1].length; });
     var foco = OPC.foco ? (OPC.foco === 'r' ? 'rr' : OPC.foco) : '';

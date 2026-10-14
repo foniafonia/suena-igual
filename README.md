@@ -12,7 +12,8 @@ Se juzga por el sonido, no por la letra. Si se intenta echar una carta que no va
 **Jugar:** https://foniafonia.github.io/suena-igual/ · **Imprimir las cartas:** `imprimir.html`
 
 - Contra la máquina o dos jugadores en el mismo aparato.
-- La regla se elige en «Preparar una partida» o por enlace: `?regla=inicio|final|par|silabas&foco=r&par=rl|bp|td|kg|sz&modo=dos&mano=7&pista=1`.
+- La regla se elige en «Preparar una partida» o por enlace: `?regla=inicio|final|par|silabas&foco=r&par=rl|bp|td|kg|sz&modo=dos&mano=7&pista=1&pron=es|seseo`.
+- Pronunciación: con seseo (`pron=seseo`, y por defecto en aparatos con español que no sea de España) salen de la baraja las palabras con Z, CE o CI, porque la voz es de España, y no se ofrece el par S/Z.
 - Enlace por canal para saber de dónde llega la gente: `?c=wa|tg|fb|ig|sk|ln`. Con `?yo=1`, un aparato deja de contar.
 - Sin registro; las partidas no salen del aparato. Privacidad: `privacidad.html`. Estadísticas: `estadisticas.html`.
 - Material de apoyo: no sustituye a la logopeda.
