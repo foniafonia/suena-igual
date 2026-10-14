@@ -29,62 +29,92 @@ window.addEventListener('error', function (e) {
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--mar);color:var(--crema);font-family:var(--letra);overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#app{position:fixed;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 40%,#1B5585 0%,var(--mar) 55%,var(--mar2) 100%)}
+#app{position:fixed;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 45%,#1F7A5C 0%,#145A44 48%,#0B3A2C 100%)}
+#app::before{content:'';position:absolute;left:0;right:0;top:0;bottom:0;background:repeating-radial-gradient(circle at 30% 20%,rgba(255,255,255,.025) 0 2px,transparent 2px 5px);pointer-events:none}
 #hud{display:flex;align-items:center;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
-#regla{flex:1;min-width:0;font-size:15px;line-height:1.25;color:var(--suave)}
-#regla b{color:var(--oro);font-family:var(--titulo);font-weight:600;font-size:16px}
+#regla{flex:1;min-width:0;display:flex;justify-content:center}
+#regla span{background:var(--oro);color:var(--tinta);border-radius:14px;padding:6px 12px;font-size:14px;line-height:1.2;text-align:center;box-shadow:0 3px 0 var(--oro2)}
+#regla b{font-family:var(--titulo);font-weight:600;font-size:15px}
 .bt{height:42px;min-width:42px;margin-left:6px;padding:0 9px;border:0;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer}
 #rival{display:flex;align-items:center;padding:4px 12px;min-height:58px}
 #rival .quien{font-family:var(--titulo);font-weight:600;font-size:15px;margin-right:8px;white-space:nowrap}
-#rival .cuantas{font-size:13px;color:var(--suave);margin-right:8px;white-space:nowrap}
-#rivalCartas{display:flex;flex:1;min-width:0;overflow:hidden}
-#rivalCartas .carta{width:30px;height:44px;margin-right:-12px;font-size:12px;border-width:2px}
+#rival .cuantas{font-size:13px;color:#cfe9dd;margin-right:8px;white-space:nowrap}
 #mesa{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative}
 .fila-mesa{display:flex;align-items:center;justify-content:center}
-.mazo{display:flex;flex-direction:column;align-items:center;margin-right:22px;font-size:13px;color:var(--suave)}
-.mazo .carta{margin-bottom:4px}
+.mazo{display:flex;flex-direction:column;align-items:center;margin-right:20px;font-size:13px;color:#cfe9dd}
+.mazo span{margin-top:8px}
 #turno{font-family:var(--titulo);font-weight:600;font-size:20px;margin:0 0 10px;min-height:26px}
 #turno.j1{color:#FFB37A}
 .color-ahora{margin-top:10px;font-size:14px;font-weight:700;border-radius:99px;padding:3px 12px;color:#fff}
 .color-ahora.rojo{background:var(--rojo)}.color-ahora.azul{background:var(--azul)}.color-ahora.verde{background:var(--verde)}.color-ahora.amarillo{background:var(--amarillo);color:var(--tinta)}
-.aviso{min-height:44px;margin:10px 14px 0;text-align:center;font-size:16px;line-height:1.35;color:var(--suave);max-width:560px}
+.aviso{min-height:44px;margin:10px 14px 0;text-align:center;font-size:16px;line-height:1.35;color:#d7efe4;max-width:560px}
 .aviso.bien{color:#9be7b9;font-weight:700}.aviso.fallo{color:#ffc2bb;font-weight:700}
 .ultima{position:absolute;top:8px;left:50%;-webkit-transform:translateX(-50%) scale(.6);transform:translateX(-50%) scale(.6);opacity:0;background:var(--oro);color:var(--tinta);font-family:var(--titulo);font-weight:600;font-size:20px;border-radius:99px;padding:6px 16px;transition:all .25s;white-space:nowrap;pointer-events:none}
 .ultima.on{opacity:1;-webkit-transform:translateX(-50%) scale(1);transform:translateX(-50%) scale(1)}
-#abajo{padding:6px 8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:rgba(0,0,0,.18)}
+#abajo{position:relative;padding:6px 8px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.28))}
 .abajo-cab{display:flex;align-items:center;justify-content:space-between;margin:0 4px 6px}
-#miNombre{font-family:var(--titulo);font-weight:600;font-size:15px;color:var(--suave)}
+#miNombre{font-family:var(--titulo);font-weight:600;font-size:15px;color:#d7efe4}
 #bRobar{border:0;border-radius:12px;background:var(--oro);color:var(--tinta);font:inherit;font-weight:700;font-size:16px;padding:9px 14px;cursor:pointer;box-shadow:0 3px 0 var(--oro2)}
 #bRobar:disabled{opacity:.45}
 #mano{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 2px 6px}
 #mano>.carta{flex:0 0 auto}#mano>.carta:first-child{margin-left:auto}#mano>.carta:last-child{margin-right:auto}
-/* la carta */
-.carta{position:relative;width:84px;height:118px;margin:4px;border-radius:14px;border:4px solid #fff;background:#fff;color:var(--tinta);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;box-shadow:0 4px 0 rgba(0,0,0,.25),0 8px 14px rgba(0,0,0,.25);font-family:var(--letra);cursor:pointer}
-button.carta{font:inherit}
-button.carta:disabled{cursor:default;opacity:.8}
-button.carta:active{-webkit-transform:translateY(3px);transform:translateY(3px)}
-.carta::before{content:'';position:absolute;left:0;right:0;top:0;height:16px;border-radius:9px 9px 0 0}
-.carta::after{content:'';position:absolute;left:0;right:0;bottom:0;height:16px;border-radius:0 0 9px 9px}
-.carta.rojo{border-color:var(--rojo)}.carta.rojo::before,.carta.rojo::after{background:var(--rojo)}
-.carta.azul{border-color:var(--azul)}.carta.azul::before,.carta.azul::after{background:var(--azul)}
-.carta.verde{border-color:var(--verde)}.carta.verde::before,.carta.verde::after{background:var(--verde)}
-.carta.amarillo{border-color:var(--amarillo)}.carta.amarillo::before,.carta.amarillo::after{background:var(--amarillo)}
-.carta.negra{border-color:#2a2a2a;background:linear-gradient(135deg,#E0473C 0 25%,#2E7CD6 25% 50%,#2FA866 50% 75%,#F2C230 75%)}
-.carta.negra .esp,.carta.negra .son{background:#fff;border-radius:10px;padding:0 6px}
-.carta .pal{font-weight:700;font-size:17px;line-height:1.1;text-align:center;word-break:normal;overflow-wrap:normal}
-.carta.larga .pal{font-size:14px}.carta.muy-larga .pal{font-size:12px;letter-spacing:-.2px}
-.carta.grande.larga .pal{font-size:21px}.carta.grande.muy-larga .pal{font-size:17px}
-.carta .son{font-size:11px;font-weight:700;color:#4d6457;margin-top:4px;text-align:center}
-.carta .esp{font-family:var(--titulo);font-weight:600;font-size:34px;line-height:1}
-.carta.grande{width:124px;height:172px;border-width:6px}
-.carta.grande .pal{font-size:25px}.carta.grande .esp{font-size:48px}.carta.grande .son{font-size:13px}
-.carta.oculta{background:var(--mar2);border-color:#fff}
-.carta.oculta::before,.carta.oculta::after{display:none}
-.carta .dorso{color:var(--oro);font-size:22px}
+/* la carta: una baraja de verdad. Cuerpo de color, óvalo blanco inclinado con la palabra, notas en las esquinas. */
+.carta{position:relative;flex:0 0 auto;width:84px;height:122px;margin:0;border-radius:12px;border:3px solid #fff;color:var(--tinta);display:flex;align-items:center;justify-content:center;padding:0;
+  box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 3px 0 rgba(0,0,0,.18),0 8px 16px rgba(0,0,0,.35);font-family:var(--letra);cursor:pointer;overflow:hidden;-webkit-transition:-webkit-transform .18s;transition:transform .18s}
+button.carta{font:inherit;-webkit-appearance:none;appearance:none}
+.carta.rojo{background:linear-gradient(160deg,#F2695D,#D23B30)}.carta.azul{background:linear-gradient(160deg,#4C97EA,#1F63B8)}
+.carta.verde{background:linear-gradient(160deg,#47C27F,#1F8A50)}.carta.amarillo{background:linear-gradient(160deg,#FFD65A,#E8AE12)}
+.carta.negra{background:conic-gradient(from 45deg,#E0473C 0 25%,#2E7CD6 0 50%,#2FA866 0 75%,#F2C230 0)}
+.carta .ovalo{position:absolute;left:9%;right:9%;top:22%;bottom:22%;border-radius:50%;background:#fff;-webkit-transform:rotate(-14deg);transform:rotate(-14deg);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
+.carta .ovalo>*{-webkit-transform:rotate(14deg);transform:rotate(14deg)}
+.carta .pal{font-weight:700;font-size:17px;line-height:1.05;text-align:center;letter-spacing:-.2px;padding:0 2px}
+.carta.larga .pal{font-size:14px}.carta.muy-larga .pal{font-size:11.5px;letter-spacing:-.4px}
+.carta .son{font-size:10px;font-weight:700;color:#5b6b78;margin-top:3px;text-align:center;line-height:1.1}
+.carta .esp{font-family:var(--titulo);font-weight:600;font-size:32px;line-height:1;color:var(--tinta)}
+.carta .esq{position:absolute;font-size:13px;line-height:1;color:#fff;font-weight:700;text-shadow:0 1px 1px rgba(0,0,0,.35)}
+.carta .esq.a{top:6px;left:7px}.carta .esq.b{bottom:6px;right:7px;-webkit-transform:rotate(180deg);transform:rotate(180deg)}
+.carta.amarillo .esq{color:#5b4300;text-shadow:none}
+.carta.grande{width:120px;height:174px;border-width:4px;border-radius:16px;cursor:default}
+.carta.grande .pal{font-size:24px}.carta.grande.larga .pal{font-size:19px}.carta.grande.muy-larga .pal{font-size:15px}
+.carta.grande .esp{font-size:46px}.carta.grande .son{font-size:12px}.carta.grande .esq{font-size:18px}
+/* el dorso */
+.carta.dorso{background:repeating-linear-gradient(45deg,#163E66 0 8px,#12365A 8px 16px);cursor:default}
+.carta.dorso .ovalo{background:#0B2840;border:3px solid var(--oro);box-shadow:none}
+.carta.dorso .logo{color:var(--oro);font-size:26px;line-height:1}
+.carta.dorso .marca{color:var(--oro);font-family:var(--titulo);font-weight:600;font-size:9px;letter-spacing:.5px;margin-top:2px;white-space:nowrap}
+/* la mano, en abanico */
+#mano{display:flex;justify-content:center;align-items:flex-end;min-height:150px;padding:14px 8px 4px;overflow:visible}
+#mano .carta{margin-left:-14px;-webkit-transform-origin:50% 120%;transform-origin:50% 120%}
+#mano .carta:first-child{margin-left:0}
+#mano .carta.puede{box-shadow:0 0 0 3px var(--oro),0 8px 16px rgba(0,0,0,.35)}
+#mano .carta:active{-webkit-transform:translateY(-14px)!important;transform:translateY(-14px)!important}
+button.carta:disabled{cursor:default}
+#mano.espera .carta{-webkit-filter:saturate(.55) brightness(.85);filter:saturate(.55) brightness(.85)}
+/* la del rival, también en abanico y pequeña */
+#rivalCartas{display:flex;justify-content:flex-start;padding-left:6px;min-height:58px;align-items:center}
+#rivalCartas .carta{width:36px;height:52px;border-width:2px;border-radius:7px;margin-left:-14px;-webkit-transform-origin:50% 100%;transform-origin:50% 100%}
+#rivalCartas .carta:first-child{margin-left:0}
+#rivalCartas .carta .ovalo{border-width:2px}#rivalCartas .carta .logo{font-size:11px}#rivalCartas .carta .marca{display:none}
+/* mesa: mazo y montón */
+.mazo .pila{position:relative;width:84px;height:122px}
+.mazo .pila .carta{position:absolute;left:0;top:0}
+.mazo .pila .carta:nth-child(1){-webkit-transform:translate(4px,4px);transform:translate(4px,4px)}
+.mazo .pila .carta:nth-child(2){-webkit-transform:translate(2px,2px);transform:translate(2px,2px)}
+#arriba{position:relative;width:132px;height:184px}
+#arriba .carta{position:absolute;left:6px;top:5px}
+#arriba .carta.vieja{-webkit-filter:brightness(.8);filter:brightness(.8)}
+#arriba .carta.nueva{-webkit-animation:aterriza .35s ease-out;animation:aterriza .35s ease-out}
+@-webkit-keyframes aterriza{from{-webkit-transform:translateY(60px) scale(.7) rotate(10deg);opacity:.2}}
+@keyframes aterriza{from{transform:translateY(60px) scale(.7) rotate(10deg);opacity:.2}}
+.halo{position:absolute;left:-2px;top:-3px;width:136px;height:190px;border-radius:22px;opacity:.85;-webkit-filter:blur(10px);filter:blur(10px)}
+.halo.rojo{background:#F2695D}.halo.azul{background:#4C97EA}.halo.verde{background:#47C27F}.halo.amarillo{background:#FFD65A}
 .carta.mal{-webkit-animation:sacude .3s 2;animation:sacude .3s 2}
-@-webkit-keyframes sacude{25%{-webkit-transform:translateX(-5px)}75%{-webkit-transform:translateX(5px)}}
-@keyframes sacude{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.carta.elegido-rojo{box-shadow:0 0 0 5px var(--rojo)}.carta.elegido-azul{box-shadow:0 0 0 5px var(--azul)}.carta.elegido-verde{box-shadow:0 0 0 5px var(--verde)}.carta.elegido-amarillo{box-shadow:0 0 0 5px var(--amarillo)}
+@-webkit-keyframes sacude{25%{margin-top:0;-webkit-filter:brightness(1.2)}50%{-webkit-filter:hue-rotate(-30deg)}}
+@keyframes sacude{25%{filter:brightness(1.2)}50%{filter:hue-rotate(-30deg) brightness(.8)}}
+.cartas-ejemplo{display:flex;justify-content:center;margin:10px 0 6px}
+.cartas-ejemplo .carta{width:78px;height:112px;margin:0 -6px;cursor:default}
+.cartas-ejemplo .carta:nth-child(1){-webkit-transform:rotate(-10deg) translateY(6px);transform:rotate(-10deg) translateY(6px)}
+.cartas-ejemplo .carta:nth-child(3){-webkit-transform:rotate(10deg) translateY(6px);transform:rotate(10deg) translateY(6px)}
 /* velos y tarjetas */
 .velo{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(5,20,34,.86);display:none;align-items:flex-start;justify-content:center;padding:14px;padding-top:calc(14px + env(safe-area-inset-top,0px));z-index:10;overflow:auto;-webkit-overflow-scrolling:touch}
 .velo>.tarjeta{margin:auto}
@@ -108,8 +138,9 @@ button.carta:active{-webkit-transform:translateY(3px);transform:translateY(3px)}
 #tapaQuien.j0{color:var(--verde2)}#tapaQuien.j1{color:#C25E14}
 .cartas-ejemplo{display:flex;justify-content:center;margin:8px 0 4px}
 .cartas-ejemplo .carta{width:74px;height:104px;cursor:default}
-@media (max-width:400px){.carta{width:66px;height:96px;margin:3px}.carta.larga .pal{font-size:13px}.carta.muy-larga .pal{font-size:11px}.carta .pal{font-size:15px}.carta.grande{width:108px;height:150px}.carta.grande .pal{font-size:22px}}
-@media (max-height:640px){.carta.grande{width:96px;height:134px}.carta{width:66px;height:94px}.carta .pal{font-size:14px}#rival{min-height:46px}}
+@media (max-width:400px){#mano .carta{width:70px;height:102px}#mano .carta .pal{font-size:15px}#mano .carta.larga .pal{font-size:12.5px}#mano .carta.muy-larga .pal{font-size:10.5px}.carta .pal{font-size:15px}.carta.grande{width:108px;height:150px}.carta.grande .pal{font-size:22px}}
+@media (max-height:680px){.carta.grande{width:100px;height:146px}#arriba{width:112px;height:156px}.halo{width:116px;height:162px}#mano .carta{width:66px;height:96px}#mano{min-height:118px}.mazo .pila,.mazo .pila .carta{width:70px;height:102px}#rival{min-height:46px}}
+@media (prefers-reduced-motion:reduce){#arriba .carta.nueva{-webkit-animation:none;animation:none}}
 @media (prefers-reduced-motion:reduce){.carta.mal{-webkit-animation:none;animation:none}.ultima{transition:none}}
 </style>
 </head>
@@ -125,7 +156,7 @@ button.carta:active{-webkit-transform:translateY(3px);transform:translateY(3px)}
     <div class="ultima" id="ultima"></div>
     <p id="turno"></p>
     <div class="fila-mesa">
-      <div class="mazo"><div class="carta oculta"><span class="dorso">♪</span></div><span><span id="mazoN">0</span> en el mazo</span></div>
+      <div class="mazo"><div class="pila" id="pila"></div><span><span id="mazoN">0</span> en el mazo</span></div>
       <div id="arriba"></div>
     </div>
     <div class="color-ahora" id="colorAhora"></div>
@@ -140,7 +171,7 @@ button.carta:active{-webkit-transform:translateY(3px);transform:translateY(3px)}
 <div class="velo on" id="vInicio"><div class="tarjeta">
   <h1>🃏 Suena igual</h1>
   <div class="gran" id="inicioRegla"></div>
-  <div class="cartas-ejemplo"><div class="carta rojo"><span class="pal">casa</span></div><div class="carta azul"><span class="pal">queso</span></div><div class="carta verde"><span class="pal">kilo</span></div></div>
+  <div class="cartas-ejemplo" id="ejemploInicio"></div>
   <p style="font-size:15px;margin-top:2px">Casan porque empiezan igual: <b>suena</b> la K, aunque se escriba distinto.</p>
   <p>Echa una carta del <b>mismo color</b> o que <b>suene igual</b>. Gana quien se queda sin cartas.</p>
   <button class="btn" id="bJugar" type="button">▶ Jugar</button>

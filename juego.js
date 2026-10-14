@@ -155,21 +155,31 @@
   /* ====================== pantalla ====================== */
   function cartaDOM(c, opts) {
     opts = opts || {};
-    var b = el(opts.boton ? 'button' : 'div', 'carta ' + (c.color || 'negra') + (opts.grande ? ' grande' : '') + (opts.oculta ? ' oculta' : ''));
+    var b = el(opts.boton ? 'button' : 'div', 'carta ' + (opts.oculta ? 'dorso' : (c.color || 'negra')) + (opts.grande ? ' grande' : ''));
     if (opts.boton) b.type = 'button';
-    if (opts.oculta) { b.appendChild(el('span', 'dorso', '♪')); return b; }
+    var ov = el('span', 'ovalo');
+    if (opts.oculta) { ov.appendChild(el('span', 'logo', '♪')); ov.appendChild(el('span', 'marca', 'SUENA IGUAL')); b.appendChild(ov); b.setAttribute('aria-hidden', 'true'); return b; }
+    b.appendChild(el('span', 'esq a', '♪')); b.appendChild(el('span', 'esq b', '♪'));
     if (c.tipo === 'palabra') {
       if (c.w.length >= 10) b.className += ' muy-larga'; else if (c.w.length >= 7) b.className += ' larga';
-      b.appendChild(el('span', 'pal', c.w));
-      if (OPC.pista) b.appendChild(el('span', 'son', nombreClave(c.son)));
+      ov.appendChild(el('span', 'pal', c.w));
+      if (OPC.pista) ov.appendChild(el('span', 'son', nombreClave(c.son)));
       b.setAttribute('aria-label', c.w + ', carta ' + NOMBRE_COLOR[c.color].toLowerCase());
     } else {
       var txt = c.tipo === 'roba2' ? '+2' : (c.tipo === 'pasa' ? '⊘' : '★'), sub = c.tipo === 'roba2' ? 'Roba 2' : (c.tipo === 'pasa' ? 'Pasa turno' : 'Elige color');
-      b.appendChild(el('span', 'esp', txt)); b.appendChild(el('span', 'son', sub));
+      ov.appendChild(el('span', 'esp', txt)); ov.appendChild(el('span', 'son', sub));
       b.setAttribute('aria-label', sub + (c.color ? ', ' + NOMBRE_COLOR[c.color].toLowerCase() : ''));
     }
+    b.appendChild(ov);
     return b;
   }
+  /* abanico: cada carta un poco girada y la del centro más alta */
+  function abanico(cont, paso, alto) {
+    var n = cont.children.length, m = (n - 1) / 2;
+    for (var k = 0; k < n; k++) { var d = k - m, t = 'translateY(' + Math.round(d * d * alto) + 'px) rotate(' + (d * paso).toFixed(1) + 'deg)'; cont.children[k].style.webkitTransform = t; cont.children[k].style.transform = t; }
+  }
+  /* la de arriba no se queda sola: debajo asoman las dos anteriores, giradas */
+  var GIROS = [-9, 6, -4, 8, -6, 3];
   function aviso(txt, clase) { var a = $('aviso'); a.textContent = txt; a.className = 'aviso ' + (clase || ''); }
   var ultToque = 0;
   function alTocar(e, f) {
@@ -179,13 +189,16 @@
   function pinta() {
     if (!G) return;
     var j = G.turno, humano = OPC.modo === 'dos' || j === 0, visible = OPC.modo === 'dos' ? j : 0;
-    $('regla').innerHTML = ''; $('regla').appendChild(document.createTextNode('Casan por color o por ')); $('regla').appendChild(el('b', null, reglaTexto()));
+    $('regla').innerHTML = ''; var rs = el('span'); rs.appendChild(document.createTextNode('Casan por color o por ')); rs.appendChild(el('b', null, reglaTexto())); $('regla').appendChild(rs);
     $('mazoN').textContent = G.mazo.length;
     var rival = OPC.modo === 'dos' ? 1 - visible : 1;
     $('rivalNombre').textContent = nombreJ(rival); $('rivalN').textContent = G.manos[rival].length + (G.manos[rival].length === 1 ? ' carta' : ' cartas');
-    var rv = $('rivalCartas'); rv.innerHTML = ''; for (var k = 0; k < Math.min(G.manos[rival].length, 9); k++) rv.appendChild(cartaDOM({}, { oculta: true }));
-    var mesa = $('arriba'); mesa.innerHTML = ''; var a = arriba(); var ca = cartaDOM(a, { grande: true });
-    if (a.tipo === 'comodin' && G.color) { ca.className += ' elegido-' + G.color; ca.appendChild(el('span', 'son', 'ahora: ' + NOMBRE_COLOR[G.color])); }
+    var rv = $('rivalCartas'); rv.innerHTML = ''; for (var k = 0; k < Math.min(G.manos[rival].length, 9); k++) rv.appendChild(cartaDOM({}, { oculta: true })); abanico(rv, 6, 0.6);
+    var pila = $('pila'); pila.innerHTML = ''; for (var q = 0; q < Math.min(3, Math.ceil(G.mazo.length / 8)); q++) pila.appendChild(cartaDOM({}, { oculta: true }));
+    var mesa = $('arriba'); mesa.innerHTML = ''; mesa.appendChild(el('div', 'halo ' + G.color)); var a = arriba(), n = G.descarte.length;
+    G.descarte.slice(Math.max(0, n - 3), n - 1).forEach(function (v, k) { var cv = cartaDOM(v, { grande: true }); cv.className += ' vieja'; var gr = GIROS[(n - 3 + k + 12) % GIROS.length]; cv.style.webkitTransform = cv.style.transform = 'rotate(' + gr + 'deg)'; mesa.appendChild(cv); });
+    var ca = cartaDOM(a, { grande: true }); if (G.nueva === a.id) { ca.className += ' nueva'; G.nueva = 0; }
+    if (a.tipo === 'comodin' && G.color) ca.querySelector('.son').textContent = 'ahora: ' + NOMBRE_COLOR[G.color];
     if (a.tipo === 'palabra') alTocar(ca, function () { audioListo(); di(a.w); });
     mesa.appendChild(ca);
     $('colorAhora').className = 'color-ahora ' + G.color; $('colorAhora').textContent = 'Color: ' + NOMBRE_COLOR[G.color];
@@ -198,6 +211,9 @@
       alTocar(b, function () { if (!b.disabled) intenta(visible, c, b); });
       mano.appendChild(b);
     });
+    var nm = mano.children.length; mano.style.paddingLeft = nm > 6 ? '24px' : ''; [].forEach.call(mano.children, function (x) { x.style.marginLeft = nm > 6 ? '-28px' : ''; });
+    if (mano.firstChild) mano.firstChild.style.marginLeft = '0';
+    abanico(mano, nm > 6 ? 5 : 7, 1.2); mano.className = humano && !G.fin ? '' : 'espera';
     $('bRobar').disabled = !humano || G.fin || G.ocupado;
     $('bRobar').textContent = G.robo ? 'Pasar' : 'Robar carta';
     $('miNombre').textContent = OPC.modo === 'dos' ? nombreJ(visible) : 'Tus cartas';
@@ -220,7 +236,7 @@
   }
   function juega(j, c, ms) {
     var a = arriba(), mano = G.manos[j], i = mano.indexOf(c);
-    mano.splice(i, 1); G.descarte.push(c); G.robo = false;
+    mano.splice(i, 1); G.descarte.push(c); G.robo = false; G.nueva = c.id;
     var porSonido = c.tipo === 'palabra' && a.tipo === 'palabra' && c.son === a.son;
     G.jug.push({ j: j, w: c.w || c.tipo, tipo: c.tipo, porSonido: porSonido, porColor: c.color === G.color, ms: ms });
     if (c.tipo === 'palabra') { di(c.w); aviso('✔ ' + c.w + (porSonido ? ' · ' + porQueSi(c, a) : ' · mismo color'), 'bien'); }
@@ -335,9 +351,11 @@
   $('bJugar').onclick = juegaYa;
   function muestraInicio() {
     $('inicioRegla').innerHTML = ''; $('inicioRegla').appendChild(document.createTextNode('Casan por color o por ')); $('inicioRegla').appendChild(el('b', null, reglaTexto()));
+    var ej = $('ejemploInicio'); if (ej && !ej.firstChild) ejemplo(ej);
     $('vInicio').className = 'velo on';
   }
+  function ejemplo(cont) { [['rojo', 'casa'], ['azul', 'queso'], ['verde', 'kilo']].forEach(function (x) { cont.appendChild(cartaDOM({ tipo: 'palabra', w: x[1], color: x[0], son: 'k' })); }); }
   muestraInicio();
-  window.__suena = { OPC: OPC, PARES: PARES, REGLAS: REGLAS, estado: function () { return G; }, filas: filas, juega: juegaYa, muestraInicio: muestraInicio, guardaOpc: guardaOpc,
+  window.__suena = { ejemplo: ejemplo, cartaDOM: cartaDOM, OPC: OPC, PARES: PARES, REGLAS: REGLAS, estado: function () { return G; }, filas: filas, juega: juegaYa, muestraInicio: muestraInicio, guardaOpc: guardaOpc,
     intenta: intenta, robar: robar, vale: vale, clave: clave, grupos: grupos, nombreClave: nombreClave, reglaTexto: reglaTexto, nuevaBaraja: nuevaBaraja, turnoMaquina: turnoMaquina };
 })();

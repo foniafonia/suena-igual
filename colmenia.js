@@ -50,7 +50,7 @@
   var tp = el('div', 'tarjeta'); portada.appendChild(tp);
   tp.appendChild(el('h1', null, '🃏 Suena igual'));
   tp.appendChild(el('p', 'lema', 'El juego de cartas de los sonidos: se echa carta si es del mismo color o si la palabra SUENA igual.'));
-  var ej = el('div', 'cartas-ejemplo'); [['rojo', 'casa'], ['azul', 'queso'], ['verde', 'kilo']].forEach(function (x) { var c = el('div', 'carta ' + x[0]); c.appendChild(el('span', 'pal', x[1])); ej.appendChild(c); }); tp.appendChild(ej);
+  var ej = el('div', 'cartas-ejemplo'); S.ejemplo(ej); tp.appendChild(ej);
   tp.appendChild(el('p', 'mini', 'Casa, queso y kilo casan: empiezan por el mismo SONIDO aunque se escriban distinto.'));
   var bJ = el('button', 'btn ancho', '▶ Jugar contra la máquina'); bJ.type = 'button'; tp.appendChild(bJ);
   var bD = el('button', 'btn s ancho'); bD.type = 'button'; bD.appendChild(document.createTextNode('👥 Dos jugadores')); bD.appendChild(el('small', null, 'en el mismo aparato, pasándolo')); tp.appendChild(bD);
