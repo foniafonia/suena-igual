@@ -10,8 +10,8 @@
 <meta property="og:description" content="Se echa carta si es del mismo color o si SUENA igual: casa, queso y kilo casan. Tú eliges la regla.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🃏%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="fuentes/fuentes.css?v=10142354">
-<link rel="stylesheet" href="estilos.css?v=10142354">
+<link rel="stylesheet" href="fuentes/fuentes.css?v=10142355">
+<link rel="stylesheet" href="estilos.css?v=10142355">
 <script>
 /* si algo falla al arrancar, que se diga en pantalla y quede contado (solo la suma) */
 window.addEventListener('error', function (e) {
@@ -56,8 +56,6 @@ html,body{margin:0;height:100%;background:var(--mar);color:var(--crema);font-fam
 #miNombre{font-family:var(--titulo);font-weight:600;font-size:15px;color:#d7efe4}
 #bRobar{border:0;border-radius:12px;background:var(--oro);color:var(--tinta);font:inherit;font-weight:700;font-size:16px;padding:9px 14px;cursor:pointer;box-shadow:0 3px 0 var(--oro2)}
 #bRobar:disabled{opacity:.45}
-#mano{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 2px 6px}
-#mano>.carta{flex:0 0 auto}#mano>.carta:first-child{margin-left:auto}#mano>.carta:last-child{margin-right:auto}
 /* la carta: una baraja de verdad. Cuerpo de color, óvalo blanco inclinado con la palabra, notas en las esquinas. */
 .carta{position:relative;flex:0 0 auto;width:84px;height:122px;margin:0;border-radius:12px;border:3px solid #fff;color:var(--tinta);display:flex;align-items:center;justify-content:center;padding:0;
   box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 3px 0 rgba(0,0,0,.18),0 8px 16px rgba(0,0,0,.35);font-family:var(--letra);cursor:pointer;overflow:hidden;-webkit-transition:-webkit-transform .18s;transition:transform .18s}
@@ -65,7 +63,7 @@ button.carta{font:inherit;-webkit-appearance:none;appearance:none}
 .carta.rojo{background:linear-gradient(160deg,#F2695D,#D23B30)}.carta.azul{background:linear-gradient(160deg,#4C97EA,#1F63B8)}
 .carta.verde{background:linear-gradient(160deg,#47C27F,#1F8A50)}.carta.amarillo{background:linear-gradient(160deg,#FFD65A,#E8AE12)}
 .carta.negra{background:conic-gradient(from 45deg,#E0473C 0 25%,#2E7CD6 0 50%,#2FA866 0 75%,#F2C230 0)}
-.carta .ovalo{position:absolute;left:9%;right:9%;top:22%;bottom:22%;border-radius:50%;background:#fff;-webkit-transform:rotate(-14deg);transform:rotate(-14deg);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
+.carta .ovalo{position:absolute;left:4%;right:4%;top:29%;bottom:29%;border-radius:50%;background:#fff;-webkit-transform:rotate(-14deg);transform:rotate(-14deg);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
 .carta .ovalo>*{-webkit-transform:rotate(14deg);transform:rotate(14deg)}
 .carta .pal{font-weight:700;font-size:17px;line-height:1.05;text-align:center;letter-spacing:-.2px;padding:0 2px}
 .carta.larga .pal{font-size:14px}.carta.muy-larga .pal{font-size:11.5px;letter-spacing:-.4px}
@@ -83,7 +81,7 @@ button.carta{font:inherit;-webkit-appearance:none;appearance:none}
 .carta.dorso .logo{color:var(--oro);font-size:26px;line-height:1}
 .carta.dorso .marca{color:var(--oro);font-family:var(--titulo);font-weight:600;font-size:9px;letter-spacing:.5px;margin-top:2px;white-space:nowrap}
 /* la mano, en abanico */
-#mano{display:flex;justify-content:center;align-items:flex-end;min-height:150px;padding:14px 8px 4px;overflow:visible}
+#mano{display:flex;justify-content:center;align-items:flex-end;min-height:150px;padding:14px 8px 4px;overflow:visible;width:100%}
 #mano .carta{margin-left:-14px;-webkit-transform-origin:50% 120%;transform-origin:50% 120%}
 #mano .carta:first-child{margin-left:0}
 #mano .carta.puede{box-shadow:0 0 0 3px var(--oro),0 8px 16px rgba(0,0,0,.35)}
@@ -189,10 +187,10 @@ button.carta:disabled{cursor:default}
   <div id="finExtra"></div>
 </div></div>
 
-<script src="banco.js?v=10142354"></script>
-<script src="voz/indice.js?v=10142354"></script>
-<script src="fonetica.js?v=10142354"></script>
-<script src="juego.js?v=10142354"></script>
-<script src="colmenia.js?v=10142354"></script>
+<script src="banco.js?v=10142355"></script>
+<script src="voz/indice.js?v=10142355"></script>
+<script src="fonetica.js?v=10142355"></script>
+<script src="juego.js?v=10142355"></script>
+<script src="colmenia.js?v=10142355"></script>
 </body>
 </html>
