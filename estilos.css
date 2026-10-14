@@ -1,0 +1,71 @@
+/* Lo que la versión pública añade al juego de Fönia: portada, «Prepara la partida» e informe. */
+/* La tarjeta de la comunidad: que se vea que es un regalo y dónde se toca (José, 13/10: «el
+   botón es pobre, que quieran pinchar»). */
+.cta{display:block;position:relative;margin:16px auto 0;padding:14px 14px 12px;border-radius:20px;max-width:440px;text-align:left;text-decoration:none;
+  color:var(--tinta)!important;background:#F4B93A;background:linear-gradient(135deg,#FFD866 0%,#F4B93A 55%,#EFA51F 100%);
+  border:3px solid #10231A;box-shadow:0 6px 0 #10231A;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.cta:active{transform:translateY(4px);box-shadow:0 2px 0 #10231A}
+.cta-abeja{position:absolute;right:10px;top:6px;font-size:44px;line-height:1;-webkit-animation:abeja 2.6s ease-in-out infinite;animation:abeja 2.6s ease-in-out infinite}
+.cta-txt{display:block;padding-right:54px}
+.cta-txt b{display:block;font-family:var(--titulo);font-weight:600;font-size:21px;line-height:1.15}
+.cta-txt>span{display:block;font-size:15px;line-height:1.35;margin-top:4px}
+.cta-lista{display:flex!important;flex-wrap:wrap;margin:8px -3px 0!important}
+.cta-lista i{font-style:normal;font-weight:700;font-size:13px;background:rgba(255,255,255,.75);border-radius:99px;padding:3px 9px;margin:3px}
+.cta-ir{display:block;margin-top:10px;padding:11px 12px;border-radius:14px;background:#10231A;color:#FFF8E7;font-family:var(--titulo);font-weight:600;font-size:19px;text-align:center}
+.cta-ir span{display:inline-block;-webkit-animation:flecha 1.1s ease-in-out infinite;animation:flecha 1.1s ease-in-out infinite}
+@-webkit-keyframes abeja{0%,100%{-webkit-transform:translateY(0) rotate(-6deg)}50%{-webkit-transform:translateY(-6px) rotate(8deg)}}
+@keyframes abeja{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-6px) rotate(8deg)}}
+@-webkit-keyframes flecha{0%,100%{-webkit-transform:translateX(0)}50%{-webkit-transform:translateX(6px)}}
+@keyframes flecha{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.cta-abeja,.cta-ir span{-webkit-animation:none;animation:none}}
+.firma{font-size:13px!important;color:#4d6457;margin-top:10px!important}
+.idea{display:inline-block;margin-top:10px;font-size:15px;color:#2d5a41!important;text-decoration:underline}
+.lema{font-size:19px!important;margin:4px 0 12px!important}
+.trabaja{display:flex;flex-wrap:wrap;justify-content:center;margin:6px 0 12px;padding:0;list-style:none}
+.trabaja li{background:#fff;border:2px solid #cfd8d2;border-radius:99px;padding:5px 12px;margin:3px;font-size:15px;font-weight:700}
+.btn.ancho{display:block;width:100%;max-width:420px;margin:8px auto}
+.btn.ancho small{display:block;font-weight:400;font-size:14px;opacity:.9}
+.prep{text-align:left}
+.prep h1{text-align:center}
+.prep h2{font-family:var(--titulo);font-size:19px;margin:16px 0 6px}
+.objs{display:flex;flex-wrap:wrap}
+.objs button{flex:1 1 150px;margin:3px;padding:9px 10px;border-radius:14px;border:2px solid #cfd8d2;background:#fff;font:inherit;font-weight:700;font-size:16px;line-height:1.2;text-align:left;cursor:pointer;color:var(--tinta)}
+.objs button small{display:block;font-weight:400;font-size:13px;color:#4d6457}
+.objs button.on{border-color:var(--verde);background:#e3f3e8}
+.fila2{display:flex;flex-wrap:wrap}.fila2 .campo{flex:1 1 130px;margin:6px 4px}
+.prep textarea{width:100%;min-height:64px;font:inherit;font-size:17px;padding:9px;border-radius:12px;border:2px solid #cfd8d2;box-sizing:border-box}
+.prep .resumen{background:var(--oro);border-radius:14px;padding:9px 12px;margin:14px 0 6px;font-weight:700;text-align:center}
+.enlace{display:none;background:#fff;border:2px solid #cfd8d2;border-radius:14px;padding:10px;margin-top:10px}
+.enlace.on{display:block}
+.enlace input{width:100%;font:inherit;font-size:14px;padding:8px;border-radius:10px;border:1px solid #cfd8d2;box-sizing:border-box}
+.minis{text-align:center;margin-top:6px}
+.btn.mini{font-size:16px;padding:9px 14px;margin:4px 3px}
+.informe{text-align:left;background:#fff;border:2px solid #cfd8d2;border-radius:16px;padding:10px 12px;margin:12px 0 4px}
+.informe h2{font-family:var(--titulo);font-size:18px;margin:0 0 6px}
+.informe dl{margin:0}
+.informe dt{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#4d6457;margin-top:7px}
+.informe dd{margin:0;font-size:16px;line-height:1.35}
+.informe dd.clave{font-weight:700}
+.ok-copia{font-size:14px;color:#2d5a41;min-height:1.2em;text-align:center;margin:4px 0 0!important}
+/* portada ilustrada (imágenes de Codex, 12/10/2026) */
+/* La portada y «Prepara la partida» tapan toda la pantalla: la barra con la regla y los
+   marcadores no pinta nada hasta que se va a jugar (José, 12/10: «lleva a confusión»). */
+/* «Antes de irte»: hoja que sube desde abajo, una vez por visita */
+.despedida{display:none;position:fixed;left:0;right:0;top:0;bottom:0;z-index:40;background:rgba(6,28,19,.72);align-items:flex-end;justify-content:center;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.despedida.on{display:flex}
+.despedida-caja{position:relative;width:100%;max-width:470px;background:var(--crema);border-radius:24px;padding:16px 14px 16px;box-shadow:0 -8px 40px rgba(0,0,0,.45);-webkit-animation:sube .35s ease-out;animation:sube .35s ease-out}
+.despedida-t{margin:0 44px 2px 4px;font-family:var(--titulo);font-weight:600;font-size:20px;color:var(--tinta)}
+.despedida-caja .cta{margin-top:10px}
+.despedida-x{position:absolute;right:10px;top:10px;width:40px;height:40px;border-radius:50%;border:2px solid #cfd8d2;background:#fff;font-size:18px;font-weight:700;cursor:pointer;color:var(--tinta)}
+@-webkit-keyframes sube{from{-webkit-transform:translateY(40px);opacity:0}to{-webkit-transform:none;opacity:1}}
+@keyframes sube{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.despedida-caja{-webkit-animation:none;animation:none}}
+#vPausa .cta{margin-top:16px}
+/* Suena igual: lo propio */
+.portada{background:var(--mar2)!important;z-index:30}
+.lema{font-size:19px!important}
+.mini{font-size:15px!important;color:#3f5263}
+.campo{margin:10px 0;text-align:left}.campo label{display:block;font-weight:700;margin-bottom:6px}
+.campo select{font:inherit;font-size:17px;padding:9px;border-radius:12px;border:2px solid #cfd8d2;width:100%;background:#fff;color:var(--tinta)}
+.fijado #pausaCta{display:none}
+.informe dd.clave{font-weight:700}

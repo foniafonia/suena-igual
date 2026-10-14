@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Suena igual · cuánta gente lo abre</title>
+<style>
+  body{font:17px/1.5 system-ui,-apple-system,sans-serif;max-width:680px;margin:0 auto;padding:22px 16px 60px;background:#F3F5F2;color:#10231A}
+  h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:26px 0 8px}
+  .sub{color:#4d6457;margin:0 0 18px}
+  .cajas{display:flex;flex-wrap:wrap;margin:0 -5px}
+  .caja{flex:1 1 140px;margin:5px;background:#fff;border:1px solid #DCE6DE;border-radius:16px;padding:12px 14px}
+  .caja b{display:block;font-size:34px;line-height:1.1}
+  .caja span{font-size:14px;color:#4d6457}
+  .caja.gorda{background:#0E3524;color:#fff;border-color:#0E3524}.caja.gorda span{color:#B8D9C4}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #DCE6DE;border-radius:12px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid #EEF2EE;font-variant-numeric:tabular-nums}
+  th:first-child,td:first-child{text-align:left}th{font-size:13px;color:#4d6457;font-weight:600}
+  .barra{display:inline-block;height:10px;border-radius:5px;background:#2FA866;vertical-align:middle;margin-right:6px}
+  .nota{font-size:14px;color:#4d6457}
+  button{font:inherit;font-weight:700;padding:10px 16px;border-radius:12px;border:0;background:#2FA866;color:#fff;cursor:pointer}
+  a{color:#1E7B4B}
+</style>
+</head>
+<body>
+<h1>🐍 Suena igual</h1>
+<p class="sub">Cuánta gente lo abre y qué hace. <span id="hora"></span></p>
+
+<div class="cajas">
+  <div class="caja gorda"><b id="n_personas">…</b><span>aparatos distintos que lo han abierto</span></div>
+  <div class="caja"><b id="n_aperturas">…</b><span>veces abierto</span></div>
+  <div class="caja"><b id="n_partidas">…</b><span>partidas empezadas</span></div>
+  <div class="caja"><b id="n_tandas">…</b><span>partidas terminadas</span></div>
+</div>
+
+<h2>¿Les acerca a la comunidad?</h2>
+<div class="cajas">
+  <div class="caja gorda"><b id="n_skool_personas">…</b><span>aparatos distintos que han ido a Skool</span></div>
+  <div class="caja"><b id="n_skool">…</b><span>toques al botón, en total</span></div>
+  <div class="caja"><b id="n_skool_portada">…</b><span>desde la portada</span></div>
+  <div class="caja"><b id="n_skool_final">…</b><span>al acabar una tanda</span></div>
+  <div class="caja"><b id="n_skool_idea">…</b><span>desde «¿echas algo en falta?»</span></div>
+  <div class="caja"><b id="n_skool_pausa">…</b><span>desde la pausa</span></div>
+  <div class="caja"><b id="n_skool_despedida">…</b><span>desde «antes de irte»</span></div>
+  <div class="caja"><b id="n_despedida_vista">…</b><span>veces que ha salido «antes de irte»</span></div>
+</div>
+
+<h2>¿De dónde llegan?</h2>
+<p class="nota">Cuenta las aperturas que llegan con un enlace de canal (?c=wa, tg, fb, ig, sk, ln). Las que llegan con el enlace sin canal no salen aquí.</p>
+<table><thead><tr><th>Canal</th><th>Aperturas</th><th>Aparatos nuevos</th><th>A Skool</th></tr></thead><tbody id="canales"></tbody></table>
+
+<h2>¿Lo usan las logopedas?</h2>
+<div class="cajas">
+  <div class="caja"><b id="n_preparada">…</b><span>partidas preparadas</span></div>
+  <div class="caja"><b id="n_enlace">…</b><span>enlaces creados para familias</span></div>
+  <div class="caja"><b id="n_familia">…</b><span>veces abierto desde un enlace de familia</span></div>
+  <div class="caja"><b id="n_informe">…</b><span>informes compartidos</span></div>
+  <div class="caja"><b id="n_imprimir">…</b><span>veces que han abierto las cartas para imprimir</span></div>
+</div>
+
+<h2>Últimos 7 días</h2>
+<p class="nota" id="cargando">Los números van llegando poco a poco (unos 25 segundos).</p>
+<table><thead><tr><th>Día</th><th>Aparatos nuevos</th><th>Aperturas</th><th>Partidas</th><th>A Skool</th></tr></thead><tbody id="dias"></tbody></table>
+
+<p style="margin-top:18px"><button type="button" onclick="location.reload()">↻ Actualizar</button></p>
+
+<h2>Cómo leer esto</h2>
+<p class="nota"><b>Aparatos distintos</b> es lo más parecido a «personas»: cada móvil, tableta u ordenador cuenta una vez. Si alguien lo abre en el móvil y en el ordenador, cuenta dos; si borra los datos del navegador, vuelve a contar.</p>
+<p class="nota">El recuento de aparatos y el de días empezó el <b>15 de octubre de 2026</b>. </p>
+<p class="nota"><b>Lo que esta página no puede saber:</b> cuántos de los que tocan el botón se apuntan de verdad a la comunidad. Eso solo lo ve Skool, en su propio panel de miembros. Aquí se cuenta hasta el momento en que salen hacia allí.</p>
+<p class="nota">No se guarda nada de nadie: solo estas sumas. Sin nombres, sin cuentas y sin cookies.</p>
+<p class="nota"><b>Para que tu aparato no cuente:</b> abre una vez <a href="./?yo=1">el juego con ?yo=1</a> en cada aparato tuyo. Para que vuelva a contar, <a href="./?yo=0">ábrelo con ?yo=0</a>.</p>
+
+<script>
+(function () {
+  var BASE = 'https://abacus.jasoncameron.dev/get/foniafonia-juegos/';
+  /* El servicio admite 30 consultas cada 10 segundos: se piden de una en una, con un respiro
+     entre ellas, y si aun así dice «demasiadas», se espera y se repite. Por eso los números
+     van apareciendo poco a poco. Una clave que aún no existe (404) vale cero. */
+  var cola = Promise.resolve();
+  function pausa(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function pide(k, intento) {
+    return fetch(BASE + k).then(function (r) {
+      if (r.status === 404) return 0;
+      if (r.status === 429 && intento < 3) return pausa(4000).then(function () { return pide(k, intento + 1); });
+      if (!r.ok) return null;
+      return r.json().then(function (j) { return j && j.value ? j.value : 0; });
+    }).catch(function () { return null; });
+  }
+  function lee(k) { var p = cola.then(function () { return pide(k, 0); }); cola = p.then(function () { return pausa(450); }); return p; }
+  function pon(id, v) { document.getElementById(id).textContent = v === null ? '—' : v; }
+  var d0 = new Date(); document.getElementById('hora').textContent = 'Mirado el ' + d0.toLocaleDateString('es-ES') + ' a las ' + d0.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + '.';
+  [['n_personas', 'suena_personas'], ['n_aperturas', 'suena_aperturas'], ['n_partidas', 'suena_partidas'], ['n_tandas', 'suena_partidas_terminadas'],
+   ['n_skool_personas', 'suena_skool_personas'], ['n_skool_portada', 'suena_skool_portada'], ['n_skool_final', 'suena_skool_final'], ['n_despedida_vista', 'suena_despedida_vista'],
+   ['n_preparada', 'suena_partida_preparada'], ['n_enlace', 'suena_enlace_familia'], ['n_familia', 'suena_aperturas_enlace_familia'], ['n_informe', 'suena_informe_compartido'], ['n_imprimir', 'suena_imprimir_abierta']
+  ].forEach(function (p) { lee(p[1]).then(function (v) { pon(p[0], v); }); });
+  Promise.all(['suena_skool_portada', 'suena_skool_final', 'suena_skool_idea_portada', 'suena_skool_idea_final', 'suena_skool_pausa', 'suena_skool_despedida'].map(lee)).then(function (v) {
+    var n = function (x) { return x || 0; };
+    pon('n_skool', n(v[0]) + n(v[1]) + n(v[2]) + n(v[3]) + n(v[4]) + n(v[5])); pon('n_skool_idea', n(v[2]) + n(v[3]));
+    pon('n_skool_pausa', n(v[4])); pon('n_skool_despedida', n(v[5]));
+  });
+  var CANALES = [['wa', 'WhatsApp'], ['tg', 'Telegram'], ['fb', 'Facebook'], ['ig', 'Instagram'], ['sk', 'Skool'], ['ln', 'LinkedIn']];
+  Promise.all(CANALES.map(function (c) { return Promise.all([lee('suena_canal_' + c[0]), lee('suena_personas_canal_' + c[0]), lee('suena_skool_canal_' + c[0])]); })).then(function (fs) {
+    var tb = document.getElementById('canales'); tb.innerHTML = '';
+    fs.forEach(function (f, i) { var tr = document.createElement('tr'); [CANALES[i][1], f[0], f[1], f[2]].forEach(function (v) { var td = document.createElement('td'); td.textContent = v === null ? '—' : v; tr.appendChild(td); }); tb.appendChild(tr); });
+  });
+  var dias = [], hoy = new Date();
+  for (var i = 0; i < 7; i++) { var d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - i); dias.push(d); }
+  function clave(d) { return d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2); }
+  Promise.all(dias.map(function (d) { var k = clave(d); return Promise.all([lee('suena_personas_' + k), lee('suena_aperturas_' + k), lee('suena_partidas_' + k), lee('suena_skool_dia_' + k)]); })).then(function (filas) {
+    var tope = 1; filas.forEach(function (f) { if (f[0] > tope) tope = f[0]; });
+    var tb = document.getElementById('dias'); tb.innerHTML = '';
+    filas.forEach(function (f, i) {
+      var tr = document.createElement('tr'), d = dias[i];
+      var c0 = document.createElement('td'); c0.textContent = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+      var c1 = document.createElement('td'); var b = document.createElement('span'); b.className = 'barra'; b.style.width = Math.round(80 * (f[0] || 0) / tope) + 'px'; if (f[0]) c1.appendChild(b); c1.appendChild(document.createTextNode(f[0] === null ? '—' : f[0]));
+      var c2 = document.createElement('td'); c2.textContent = f[1] === null ? '—' : f[1];
+      var c3 = document.createElement('td'); c3.textContent = f[2] === null ? '—' : f[2];
+      var c4 = document.createElement('td'); c4.textContent = f[3] === null ? '—' : f[3];
+      tr.appendChild(c0); tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4); tb.appendChild(tr);
+    });
+    document.getElementById('cargando').style.display = 'none';
+  });
+})();
+</script>
+</body>
+</html>
