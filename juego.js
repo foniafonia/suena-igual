@@ -161,7 +161,7 @@
     if (opts.oculta) { ov.appendChild(el('span', 'logo', '♪')); ov.appendChild(el('span', 'marca', 'SUENA IGUAL')); b.appendChild(ov); b.setAttribute('aria-hidden', 'true'); return b; }
     b.appendChild(el('span', 'esq a', '♪')); b.appendChild(el('span', 'esq b', '♪'));
     if (c.tipo === 'palabra') {
-      if (c.w.length >= 10) b.className += ' muy-larga'; else if (c.w.length >= 7) b.className += ' larga';
+      if (c.w.length >= 9) b.className += ' muy-larga'; else if (c.w.length >= 7) b.className += ' larga';
       ov.appendChild(el('span', 'pal', c.w));
       if (OPC.pista) ov.appendChild(el('span', 'son', nombreClave(c.son)));
       b.setAttribute('aria-label', c.w + ', carta ' + NOMBRE_COLOR[c.color].toLowerCase());
