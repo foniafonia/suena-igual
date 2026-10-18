@@ -124,12 +124,37 @@
 
   /* ====================== estado de la partida ====================== */
   var G = null;
+  /* Primera partida guiada (18/10/2026): la mujer de José lo abrió en el móvil y lo primero fue «¿qué tengo que hacer?».
+     - Arriba, en los primeros turnos de cada partida, la regla en dos líneas.
+     - La primera vez en este aparato, una carta que vale brilla con «Tócala» y se dice por qué vale.
+     - Si no tienes ninguna que valga, brilla «Robar carta» (y luego «Pasar»). Siempre, no solo la primera vez.
+     - La primera vez que te sale una carta especial (+2, ⊘, ★), se explica qué hace. */
+  function lee(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function graba(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  var TUTO = 'suena.tuto1', ESP_VISTA = 'suena.esp.';
+  var EXPLICA = { roba2: '+2 · Roba 2: si la echas, el otro roba dos cartas y vuelves a tirar tú. Vale si es del mismo color o si arriba hay otro +2.',
+    pasa: '⊘ · Pasa turno: si la echas, el otro pierde su turno y vuelves a tirar tú. Vale si es del mismo color o si arriba hay otro ⊘.',
+    comodin: '★ · Elige color: vale siempre. Al echarla eliges el color que sigue.' };
+  function igualTexto() {
+    if (OPC.regla === 'inicio') return 'que empiece igual';
+    if (OPC.regla === 'final') return 'que acabe igual';
+    if (OPC.regla === 'silabas') return 'que tenga las mismas sílabas';
+    var p = PARES[OPC.par]; return 'que tenga el mismo sonido (' + F.corto(p[0]) + ' o ' + F.corto(p[1]) + ')';
+  }
+  function guiaRegla() { return 'Toca una carta de abajo del mismo color o ' + igualTexto() + ' que la del centro. Si no tienes ninguna, toca «Robar carta».'; }
+  function motivo(c, a) {
+    if (c.tipo === 'comodin') return 'es una ★: vale siempre';
+    var col = NOMBRE_COLOR[c.color] ? NOMBRE_COLOR[c.color].toLowerCase() : '';
+    if (c.tipo === 'palabra' && a.tipo === 'palabra' && c.son === a.son) return '«' + c.w + '» y «' + a.w + '»: ' + porQueSi(c, a);
+    if (c.color === G.color) return 'es ' + col + ', como la del centro';
+    return 'es igual que la del centro';
+  }
   var NOMBRE_J = ['Tú', 'La máquina'];
   function nombreJ(i) { return OPC.modo === 'dos' ? (i ? 'Jugador naranja' : 'Jugador verde') : NOMBRE_J[i]; }
   function nuevaPartida() {
     var b = nuevaBaraja();
     G = { mazo: b.cartas, grupos: b.grupos, descarte: [], manos: [[], []], turno: 0, color: null, roba: 0, inicio: ahora(), tJug: ahora(),
-      jug: [], intentos: [], robadas: [0, 0], fin: false, ganador: -1, enviado: false, ocupado: false, robo: false, ultimaCarta: [false, false] };
+      turnosH: 1, jug: [], intentos: [], robadas: [0, 0], fin: false, ganador: -1, enviado: false, ocupado: false, robo: false, ultimaCarta: [false, false] };
     for (var k = 0; k < OPC.mano; k++) { G.manos[0].push(G.mazo.pop()); G.manos[1].push(G.mazo.pop()); }
     /* la primera de arriba siempre es una palabra */
     var i = G.mazo.length - 1; while (i >= 0 && G.mazo[i].tipo !== 'palabra') i--;
@@ -216,7 +241,29 @@
     abanico(mano, nm > 6 ? 5 : 7, 1.2); mano.className = humano && !G.fin ? '' : 'espera';
     $('bRobar').disabled = !humano || G.fin || G.ocupado;
     $('bRobar').textContent = G.robo ? 'Pasar' : 'Robar carta';
+    guia(humano, visible);
     $('miNombre').textContent = OPC.modo === 'dos' ? nombreJ(visible) : 'Tus cartas';
+  }
+
+  function guia(humano, visible) {
+    var g = $('guia'), br = $('bRobar'); br.className = '';
+    if (!humano || G.fin || G.ocupado) { g.className = 'guia'; return; }
+    var mano = G.manos[visible], validas = mano.filter(vale), txt = '';
+    if (!validas.length) { br.className = 'brilla'; txt = G.robo ? 'Tampoco vale la que has robado: toca «Pasar».' : 'No tienes ninguna que valga: toca «Robar carta».'; }
+    else if (!lee(TUTO)) {
+      /* la primera vez: una que vale, mejor si casa por sonido (es lo que se trabaja) */
+      var a = arriba(), son = validas.filter(function (c) { return c.tipo === 'palabra' && a.tipo === 'palabra' && c.son === a.son; });
+      var pal = validas.filter(function (c) { return c.tipo === 'palabra'; }), c = son[0] || pal[0] || validas[0];
+      var b = $('mano').children[mano.indexOf(c)];
+      if (b) { b.className += ' guiada'; b.appendChild(el('span', 'toca', '👇 Tócala')); }
+      txt = 'Esta vale: ' + motivo(c, a) + '. Tócala para echarla.';
+    } else {
+      /* la primera vez que te sale una especial (desde el segundo turno), se explica; si no, la regla los primeros turnos */
+      var esp = null; mano.some(function (c) { if (c.tipo !== 'palabra' && !lee(ESP_VISTA + c.tipo)) { esp = c.tipo; return true; } return false; });
+      if (esp && G.turnosH > 1) { graba(ESP_VISTA + esp, '1'); txt = EXPLICA[esp]; }
+      else if (G.turnosH <= 2) txt = guiaRegla();
+    }
+    g.textContent = txt; g.className = txt ? 'guia on' : 'guia';
   }
 
   /* ====================== jugar ====================== */
@@ -237,10 +284,12 @@
   function juega(j, c, ms) {
     var a = arriba(), mano = G.manos[j], i = mano.indexOf(c);
     mano.splice(i, 1); G.descarte.push(c); G.robo = false; G.nueva = c.id;
+    if (OPC.modo === 'dos' || j === 0) graba(TUTO, '1');
     var porSonido = c.tipo === 'palabra' && a.tipo === 'palabra' && c.son === a.son;
     G.jug.push({ j: j, w: c.w || c.tipo, tipo: c.tipo, porSonido: porSonido, porColor: c.color === G.color, ms: ms });
     if (c.tipo === 'palabra') { di(c.w); aviso('✔ ' + c.w + (porSonido ? ' · ' + porQueSi(c, a) : ' · mismo color'), 'bien'); }
-    else aviso(c.tipo === 'roba2' ? '+2: el otro roba dos cartas.' : (c.tipo === 'pasa' ? '⊘ El otro pierde el turno.' : '★ Elige el color.'), 'bien');
+    else if (OPC.modo === 'maquina' && j === 1) aviso(c.tipo === 'roba2' ? '+2 de la máquina: robas dos cartas y vuelve a tirar ella.' : (c.tipo === 'pasa' ? '⊘ de la máquina: pierdes tu turno.' : '★ La máquina cambia el color.'), 'fallo');
+    else aviso(c.tipo === 'roba2' ? '+2: el otro roba dos cartas y vuelves a tirar tú.' : (c.tipo === 'pasa' ? '⊘ El otro pierde el turno: vuelves a tirar tú.' : '★ Elige el color.'), 'bien');
     sfxOk();
     if (c.tipo !== 'comodin') G.color = c.color;
     if (!mano.length) { gana(j); return; }
@@ -256,6 +305,7 @@
   }
   function cambiaTurno(j) {
     G.turno = j; G.tJug = ahora(); G.robo = false;
+    if (OPC.modo === 'dos' || j === 0) G.turnosH++;
     if (OPC.modo === 'dos') { pinta(); tapa(j); return; }
     pinta();
     if (j === 1) { G.ocupado = true; setTimeout(turnoMaquina, 1100); }
@@ -338,7 +388,7 @@
   function juegaYa() {
     audioListo(); guardaOpc();
     ['vInicio', 'vFin', 'vPausa'].forEach(function (x) { $(x).className = 'velo'; });
-    nuevaPartida(); aviso('Echa una carta del mismo color o que suene igual. Toca la de arriba para oírla.', '');
+    nuevaPartida(); aviso('Toca la carta del centro para oír su palabra.', '');
     if (OPC.modo === 'dos') { pinta(); tapa(0); } else pinta();
   }
   alTocar($('bRobar'), robar);
