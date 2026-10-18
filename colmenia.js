@@ -10,7 +10,7 @@
   function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x !== undefined && x !== null) e.textContent = x; return e; }
   /* 18/10/2026: a la lección del juego en el curso abierto (quien no tiene cuenta ve igualmente la presentación) */
   var SKOOL = 'https://www.skool.com/logopedia-7339/classroom/2f40ff2d?md=d8ae7817e6ac487688e6650388f8a35b';
-  var CONTADOR = 'https://abacus.jasoncameron.dev/hit/foniafonia-juegos/';
+  var CONTADOR = 'https://abacus.jasoncameron.dev/hit/foniafonia-suena-lanz/';
   var FIJO = document.body.className.indexOf('fijado') >= 0;
 
   /* ---------- recuento ---------- */
