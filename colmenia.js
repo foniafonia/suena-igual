@@ -168,7 +168,7 @@
   $('pausaCta').appendChild(FIJO ? el('span') : tarjeta('pausa', '¿Te vas? Llévate más juegos', 'En ColmenIA, la comunidad de logopedas y maestras.'));
   var textoInforme = '';
   window.addEventListener('suena:fin', function (ev) {
-    suma('suena_partidas_terminadas');
+    suma('suena_partidas_terminadas'); suma('suena_partidas_terminadas_' + hoy());
     var filas = ev.detail.filas, c = $('finInforme'); c.innerHTML = '';
     var inf = el('div', 'informe'); inf.appendChild(el('h2', null, '📋 Informe de la partida'));
     var dl = el('dl'), lin = ['🃏 Suena igual · informe de la partida'];
