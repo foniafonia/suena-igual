@@ -34,7 +34,7 @@
     /* 18/10/2026: quien pulsaba esperaba volver al juego y aterrizaba en la presentación de Skool sin saber volver.
        Se dice antes lo que va a pasar, y cómo volver si el navegador (el de WhatsApp, p. ej.) lo abre en la misma vista. */
     t.appendChild(el('span', 'cta-skool', 'La comunidad está en Skool. Te registras una vez y dentro encuentras este juego y los demás.'));
-    a.appendChild(t); a.appendChild(el('span', 'cta-ir', 'Ir a la comunidad en Skool →'));
+    a.appendChild(t); a.appendChild(el('span', 'cta-ir', 'Entrar en Skool →'));
     a.appendChild(el('span', 'cta-vuelta', 'Se abre aparte y este juego sigue aquí. Si no lo ves, vuelve con la flecha ← de atrás.'));
     a.addEventListener('click', function (ev) {
       if (!MIO) { suma('suena_skool_' + donde); suma('suena_skool_dia_' + hoy()); try { if (!localStorage.getItem('suena-fue-a-skool')) { localStorage.setItem('suena-fue-a-skool', '1'); suma('suena_skool_personas'); if (CANAL) suma('suena_skool_canal_' + CANAL); } } catch (e) { } }
