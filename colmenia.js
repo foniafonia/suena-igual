@@ -60,11 +60,11 @@
   var bJ = el('button', 'btn ancho', '▶ Jugar contra la máquina'); bJ.type = 'button'; tp.appendChild(bJ);
   var bD = el('button', 'btn s ancho'); bD.type = 'button'; bD.appendChild(document.createTextNode('👥 Dos jugadores')); bD.appendChild(el('small', null, 'en el mismo aparato, pasándolo')); tp.appendChild(bD);
   var bP = el('button', 'btn s ancho'); bP.type = 'button'; bP.appendChild(document.createTextNode('🧑‍⚕️ Preparar una partida')); bP.appendChild(el('small', null, 'Elige el sonido o el par y manda el enlace a la familia')); tp.appendChild(bP);
+  var bImp = el('a', 'btn imp ancho'); bImp.href = 'imprimir.html'; bImp.appendChild(document.createTextNode('🖨️ Imprimir la baraja')); bImp.appendChild(el('small', null, '54 cartas para recortar y jugar en la mesa · PDF listo')); bImp.onclick = function () { bImp.href = 'imprimir.html' + enlaceParams(); suma('suena_imprimir'); }; tp.appendChild(bImp);
   var ch = el('ul', 'trabaja'); ['Conciencia fonológica', 'Pares mínimos', 'Sonido inicial y final', 'Sílabas', 'Lectura'].forEach(function (x) { ch.appendChild(el('li', null, x)); }); tp.appendChild(ch);
   tp.appendChild(el('p', 'mini', 'De 6 años en adelante, para quien ya lee palabras · móvil, tableta u ordenador · 241 palabras con voz'));
   tp.appendChild(tarjeta('portada', 'Más juegos como este', 'En ColmenIA, la comunidad de logopedas y maestras que usan la IA en su trabajo.'));
   var idea = el('a', 'idea', '💡 ¿Echas algo en falta o has visto un fallo? Cuéntalo en la comunidad'); idea.href = SKOOL; idea.target = '_blank'; idea.rel = 'noopener'; idea.onclick = function () { suma('suena_skool_idea_portada'); }; tp.appendChild(idea);
-  var imp = el('a', 'idea', '🖨️ Imprimir las cartas para jugar en la mesa'); imp.href = 'imprimir.html'; imp.onclick = function () { imp.href = 'imprimir.html' + enlaceParams(); suma('suena_imprimir'); }; tp.appendChild(imp);
   firma(tp);
   document.body.appendChild(portada);
   if (!FIJO) { $('vInicio').className = 'velo'; portada.className = 'velo portada on'; }
@@ -91,6 +91,7 @@
   function opt(sel, lista, val) { sel.innerHTML = ''; lista.forEach(function (o) { var x = el('option', null, o[1]); x.value = o[0]; sel.appendChild(x); }); sel.value = val; }
   function campo(lbl, id, lista) { var d = el('div', 'campo'), l = el('label', null, lbl); l.htmlFor = id; var s = el('select'); s.id = id; d.appendChild(l); d.appendChild(s); return [d, s, lista]; }
   function enlaceParams() {
+    if (!E.regla) E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron };   /* desde la portada, sin haber abierto «preparar» */
     var p = ['regla=' + E.regla];
     if (E.regla === 'par') p.push('par=' + E.par); else if (E.foco && E.regla === 'inicio') p.push('foco=' + E.foco);
     if (E.pron === 'seseo') p.push('pron=seseo'); else p.push('pron=es');
@@ -127,7 +128,7 @@
     var r = el('div', 'resumen', 'Casan por color o por ' + resumenRegla()); tq.appendChild(r);
     var bj = el('button', 'btn', '▶ Jugar ahora'); bj.type = 'button'; bj.onclick = function () { aplica(); prep.className = 'velo portada'; S.muestraInicio(); suma('suena_partida_preparada'); };
     var be = el('button', 'btn s', '🔗 Enlace para la familia'); be.type = 'button';
-    var bi = el('button', 'btn s', '🖨️ Imprimir estas cartas'); bi.type = 'button'; bi.onclick = function () { suma('suena_imprimir'); location.href = 'imprimir.html' + enlaceParams(); };
+    var bi = el('button', 'btn imp', '🖨️ Imprimir esta baraja'); bi.type = 'button'; bi.onclick = function () { suma('suena_imprimir'); location.href = 'imprimir.html' + enlaceParams(); };
     var fila = el('div'); fila.style.textAlign = 'center'; fila.appendChild(bj); fila.appendChild(be); fila.appendChild(bi); tq.appendChild(fila);
     var caja = el('div', 'enlace'); tq.appendChild(caja);
     be.onclick = function () {
