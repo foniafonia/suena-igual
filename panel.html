@@ -29,6 +29,7 @@
   .pieza header .est{margin-left:auto;font-size:13px}
   .cajas{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:6px 0 10px}
   .caja{background:#F6F9F6;border:1px solid #E5EDE6;border-radius:12px;padding:8px 10px}
+  .general .caja{background:#0E3524;border-color:#0E3524;color:#fff}.general .caja span{color:#B8D9C4}.general .caja b{font-size:32px}
   .caja b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
   .caja span{font-size:13.5px;color:var(--suave);line-height:1.25;display:block}
   .paso{margin:7px 0}
@@ -72,6 +73,10 @@
 <div class="barra"><button type="button" id="bAct">↻ Actualizar</button><div class="prog"><i id="prog"></i></div><span id="estado">Preparando…</span></div>
 <div id="avisos"></div>
 
+<h2 style="margin-top:18px">En total</h2>
+<div class="cajas general" id="general"></div>
+<p class="nota" id="notaGeneral"></p>
+
 <h2>Piezas con contador</h2>
 <div id="piezas"></div>
 
@@ -86,7 +91,7 @@
 <div class="envol"><table id="tCanal"><thead><tr><th>Canal</th><th>Aperturas</th><th>Aparatos nuevos</th><th>A Skool</th></tr></thead><tbody></tbody></table></div>
 <p class="nota" id="notaCanal"></p>
 
-<h2>Otras piezas con contador</h2>
+<h2>Otras piezas con contador (solo por total)</h2>
 <div id="otras"></div>
 
 <h2>Piezas sin contador</h2>
@@ -137,11 +142,12 @@
   ];
   var CANALES = [['wa', 'WhatsApp'], ['tg', 'Telegram'], ['fb', 'Facebook'], ['ig', 'Instagram'], ['sk', 'Skool'], ['ln', 'LinkedIn']];
   var OTRAS = [
-    { nombre: 'FonoKart', url: 'https://foniafonia.github.io/fonokart/', claves: [['Aperturas', NS_J, 'fonokart_aperturas']], nota: 'Solo cuenta aperturas, sin personas ni día. Ojo: la copia que usan las familias dentro de Fönia cuenta aquí también.' },
-    { nombre: 'Sucadash (Sukkot)', url: 'https://foniafonia.github.io/sucadash/', claves: [['Aperturas', NS_J, 'sucadash_aperturas'], ['Dispositivos', NS_J, 'sucadash_dispositivos'], ['Partidas', NS_J, 'sucadash_partidas']], nota: 'Otro proyecto (juegos de Sukkot). Solo por total.' },
-    { nombre: 'Sucotkart (Sukkot)', url: 'https://foniafonia.github.io/sucotkart/', claves: [['Aperturas', NS_J, 'sucotkart_aperturas'], ['Móviles', NS_J, 'sucotkart_moviles'], ['Carreras', NS_J, 'sucotkart_carreras']], nota: 'Otro proyecto (juegos de Sukkot). Solo por total.' }
+    { nombre: 'FonoKart', url: 'https://foniafonia.github.io/fonokart/', ape: 'fonokart_aperturas', claves: [['Aperturas', NS_J, 'fonokart_aperturas']], nota: 'Solo cuenta aperturas, sin personas ni día. Ojo: la copia que usan las familias dentro de Fönia cuenta aquí también.' },
+    { nombre: 'Sucadash (Sukkot)', url: 'https://foniafonia.github.io/sucadash/', ape: 'sucadash_aperturas', apa: 'sucadash_dispositivos', par: 'sucadash_partidas', claves: [['Aperturas', NS_J, 'sucadash_aperturas'], ['Dispositivos', NS_J, 'sucadash_dispositivos'], ['Partidas', NS_J, 'sucadash_partidas']], nota: 'Juego de Sukkot. Solo por total: sin día ni canal ni Skool.' },
+    { nombre: 'Sucotkart (Sukkot)', url: 'https://foniafonia.github.io/sucotkart/', ape: 'sucotkart_aperturas', apa: 'sucotkart_moviles', par: 'sucotkart_carreras', claves: [['Aperturas', NS_J, 'sucotkart_aperturas'], ['Móviles', NS_J, 'sucotkart_moviles'], ['Carreras', NS_J, 'sucotkart_carreras']], nota: 'Juego de Sukkot. Solo por total: sin día ni canal ni Skool. «Móviles» cuenta una vez por móvil.' }
   ];
   var SIN = [
+    ['FonoMundos', 'Vive en fonomundos.vercel.app y no lleva contador. Haría falta una línea que cuente la apertura, como las demás; lo decides tú.'],
     ['FonoDash', 'Está en GitHub Pages sin ningún contador. Haría falta una línea que cuente la apertura y una por partida.'],
     ['Espiral de colores', 'Vive dentro de Fönia. Para contar solo lo público haría falta una versión abierta con su propio contador.'],
     ['Trabajamos la R', 'Vive dentro de Fönia (rotacismo). Igual: una versión abierta con contador, o contar solo las aperturas sin enlace de caso.'],
@@ -149,7 +155,7 @@
     ['Ruta de la prosodia', 'Dentro de Fönia. Mismo caso: haría falta una versión pública con contador.'],
     ['Mi vocabulario de gestos', 'Dentro de Fönia. Mismo caso: haría falta una versión pública con contador.']
   ];
-  var PINGS = P.map(function (p) { return [p.nombre, p.url]; }).concat([['FonoKart', 'https://foniafonia.github.io/fonokart/'], ['FonoDash', 'https://foniafonia.github.io/fonodash/'], ['Contador (Abacus)', 'https://abacus.jasoncameron.dev/get/' + NS_S + '/suena_personas']]);
+  var PINGS = P.map(function (p) { return [p.nombre, p.url]; }).concat([['FonoKart', 'https://foniafonia.github.io/fonokart/'], ['FonoDash', 'https://foniafonia.github.io/fonodash/'], ['FonoMundos', 'https://fonomundos.vercel.app/'], ['Sucadash', 'https://foniafonia.github.io/sucadash/'], ['Sucotkart', 'https://foniafonia.github.io/sucotkart/'], ['Contador (Abacus)', 'https://abacus.jasoncameron.dev/get/' + NS_S + '/suena_personas']]);
 
   /* ---------------- lectura de contadores: de una en una, con respiro (30 cada 10 s) ---------------- */
   var V = {}, FALLOS = [], hechas = 0, total = 0, cola = Promise.resolve(), CK = 'panel-piezas-v1', cache = {};
@@ -212,6 +218,20 @@
       var cj = el('div', 'cajas'); o.claves.forEach(function (c) { var b = el('div', 'caja'); b.appendChild(el('b', null, fmt(g(c[1], c[2])))); b.appendChild(el('span', null, c[0].toLowerCase())); cj.appendChild(b); }); d.appendChild(cj);
       d.appendChild(el('p', 'nota', o.nota)); cont.appendChild(d);
     });
+  }
+
+  /* ---------------- el total de todas las piezas con contador ---------------- */
+  function suma(lista) { var s = 0, falta = false; lista.forEach(function (v) { if (v === null) falta = true; else s += v; }); return { s: s, falta: falta }; }
+  function pintaGeneral() {
+    var ape = [], per = [], par = [], skool = [], clics = [];
+    P.forEach(function (p) { ape.push(g(p.ns, p.k.aperturas)); per.push(g(p.ns, p.k.personas)); par.push(g(p.ns, p.k.empezadas)); skool.push(g(p.ns, p.k.skoolP));
+      var cl = p.skoolSitios.map(function (s) { return g(p.ns, s); }); clics.push(cl.some(function (x) { return x === null; }) ? null : cl.reduce(function (a, b) { return a + b; }, 0)); });
+    OTRAS.forEach(function (o) { ape.push(g(NS_J, o.ape)); if (o.apa) per.push(g(NS_J, o.apa)); if (o.par) par.push(g(NS_J, o.par)); });
+    var A = suma(ape), PE = suma(per), PA = suma(par), SK = suma(skool), CL = suma(clics);
+    var cont = $('general'); cont.innerHTML = '';
+    [[A, 'aperturas en total'], [PE, 'aparatos distintos, sumando cada pieza'], [PA, 'partidas y carreras empezadas'], [SK, 'personas que pulsan Skool']].forEach(function (c) {
+      var d = el('div', 'caja'); d.appendChild(el('b', null, (c[0].falta && c[0].s ? '≥ ' : '') + fmt(c[0].falta && !c[0].s ? null : c[0].s))); d.appendChild(el('span', null, c[1])); cont.appendChild(d); });
+    $('notaGeneral').textContent = 'Suma de las ' + (P.length + OTRAS.length) + ' piezas con contador (' + P.concat(OTRAS).map(function (x) { return x.nombre.replace(' (Sukkot)', ''); }).join(', ') + '). Si alguien abre dos piezas cuenta dos veces en «aparatos»; FonoKart no cuenta aparatos ni partidas, solo aperturas. Skool solo lo cuentan Snake y Suena igual (' + fmt(CL.s) + ' pulsaciones en total). Piezas sin contador: ' + SIN.map(function (s) { return s[0]; }).join(', ') + '.';
   }
 
   /* ---------------- comparación por días desde el lanzamiento ---------------- */
@@ -286,7 +306,7 @@
     muestra();
   }
   function pintaSin() { var u = $('sinContador'); u.innerHTML = ''; SIN.forEach(function (s) { var li = el('li', 'sin'); li.appendChild(el('b', null, s[0])); li.appendChild(el('span', null, s[1])); u.appendChild(li); }); }
-  function todo() { P.forEach(pintaPieza); pintaOtras(); pintaDias(); pintaCanal(); }
+  function todo() { P.forEach(pintaPieza); pintaOtras(); pintaDias(); pintaCanal(); pintaGeneral(); }
 
   /* ---------------- carga ---------------- */
   var cargando = false;
@@ -296,19 +316,19 @@
     var tareas = [];
     P.forEach(function (p) {
       var ks = [p.k.personas, p.k.aperturas, p.k.empezadas, p.k.terminadas, p.k.skoolP, p.k.prep, p.k.familia].concat(p.k.imprimir ? [p.k.imprimir] : []).concat(p.skoolSitios);
-      ks.forEach(function (k) { tareas.push(lee(p.ns, k, false).then(function () { pintaPieza(p); })); });
+      ks.forEach(function (k) { tareas.push(lee(p.ns, k, false).then(function () { pintaPieza(p); pintaGeneral(); })); });
       var d0 = fecha(p.lanz), n = nDias(d0);
       for (var i = 0; i < n; i++) { var dd = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + i), c = dk(dd), pas = i < n - 1;
         ['personas', 'skool'].concat(dd < fecha(p.terminadasDesde) ? [] : ['terminadas']).forEach(function (m) { tareas.push(lee(p.ns, p.dia[m] + c, pas).then(pintaDias)); }); }
     });
     P[1] && CANALES.forEach(function (ca) { ['aperturas', 'personas', 'skool'].forEach(function (m) { tareas.push(lee(P[1].ns, P[1].canal[m] + ca[0], false).then(pintaCanal)); }); });
-    OTRAS.forEach(function (o) { o.claves.forEach(function (c) { tareas.push(lee(c[1], c[2], false).then(pintaOtras)); }); });
+    OTRAS.forEach(function (o) { o.claves.forEach(function (c) { tareas.push(lee(c[1], c[2], false).then(function () { pintaOtras(); pintaGeneral(); })); }); });
     Promise.all(tareas).then(function () { cargando = false; $('bAct').disabled = false; avance(); todo(); pintaAvisos(); });
     ping();
   }
   $('bAct').onclick = carga;
   pintaSin(); skoolManual();
-  P.forEach(pintaPieza); pintaOtras(); pintaDias(); pintaCanal();
+  P.forEach(pintaPieza); pintaOtras(); pintaDias(); pintaCanal(); pintaGeneral();
   carga();
   window.__panel = { carga: carga, V: function () { return V; }, FALLOS: function () { return FALLOS; } };
 })();
