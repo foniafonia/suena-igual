@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Piezas del laboratorio · panel</title>
+<style>
+  :root{--tinta:#10231A;--suave:#4d6457;--linea:#DCE6DE;--fondo:#F3F5F2;--verde:#2FA866;--snake:#2a78d6;--suena:#eb6834;--oro:#F4B93A}
+  *{box-sizing:border-box}
+  body{font:17px/1.5 system-ui,-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:20px 14px 70px;background:var(--fondo);color:var(--tinta)}
+  h1{font-size:27px;margin:0 0 2px}h2{font-size:20px;margin:30px 0 8px}h3{font-size:17px;margin:0}
+  .sub{color:var(--suave);margin:0 0 12px;font-size:15.5px}
+  .nota{font-size:14px;color:var(--suave);line-height:1.45}
+  a{color:#1E7B4B}
+  button{font:inherit;font-weight:700;padding:10px 16px;border-radius:12px;border:0;background:var(--verde);color:#fff;cursor:pointer}
+  .barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 6px}
+  .prog{flex:1 1 180px;height:8px;border-radius:5px;background:#dfe7e1;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:var(--verde);transition:width .3s}
+  #estado{font-size:14px;color:var(--suave)}
+  /* avisos */
+  #avisos .av{background:#FDE7E4;border:1px solid #F1B7B0;color:#7a1f16;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px}
+  #avisos .av b{display:block}
+  #avisos .ok{background:#E3F2E8;border-color:#BFE0CB;color:#16482e}
+  /* tarjeta de pieza */
+  .pieza{background:#fff;border:1px solid var(--linea);border-radius:18px;padding:14px 14px 12px;margin:12px 0}
+  .pieza header{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:8px}
+  .pieza header .dia{font-size:13.5px;color:var(--suave)}
+  .pieza header .est{margin-left:auto;font-size:13px}
+  .cajas{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:6px 0 10px}
+  .caja{background:#F6F9F6;border:1px solid #E5EDE6;border-radius:12px;padding:8px 10px}
+  .caja b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+  .caja span{font-size:13.5px;color:var(--suave);line-height:1.25;display:block}
+  .paso{margin:7px 0}
+  .paso .t{display:flex;justify-content:space-between;gap:8px;font-size:15px}
+  .paso .t em{font-style:normal;color:var(--suave);font-size:14px;text-align:right}
+  .paso .b{height:9px;border-radius:5px;background:#E8EEE9;margin-top:3px;overflow:hidden}
+  .paso .b i{display:block;height:100%;background:var(--verde);border-radius:5px;min-width:2px}
+  .extra{margin-top:8px;font-size:14.5px;color:var(--tinta);display:flex;flex-wrap:wrap;gap:3px 16px}
+  .extra span b{font-variant-numeric:tabular-nums}
+  .sin{opacity:.7}
+  /* tablas */
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--linea);border-radius:12px;overflow:hidden;font-variant-numeric:tabular-nums}
+  th,td{padding:7px 8px;text-align:right;border-bottom:1px solid #EEF2EE;font-size:15px}
+  th:first-child,td:first-child{text-align:left}th{font-size:12.5px;color:var(--suave);font-weight:600;line-height:1.2}
+  .envol{overflow-x:auto}
+  tr.hoy td{background:#FFF8E0}
+  .ley{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px;margin:6px 2px}
+  .ley i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .graf{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:10px 8px 6px}
+  .graf svg{display:block;width:100%;height:auto}
+  .graf .info{min-height:22px;font-size:14px;text-align:center;margin-top:2px}
+  /* piezas sin contador */
+  ul.sinc{list-style:none;margin:0;padding:0}
+  ul.sinc li{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:9px 12px;margin:6px 0;font-size:15px}
+  ul.sinc li b{display:block}
+  ul.sinc li span{font-size:14px;color:var(--suave)}
+  /* skool */
+  .skool{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:12px}
+  .skool label{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:15px}
+  .skool input{font:inherit;width:6em;padding:8px 10px;border-radius:10px;border:1px solid #b9c6bd}
+  .skool button{padding:9px 14px}
+  .ping{display:flex;flex-wrap:wrap;gap:6px}
+  .ping span{background:#fff;border:1px solid var(--linea);border-radius:99px;padding:4px 10px;font-size:14px}
+  .ping .mal{background:#FDE7E4;border-color:#F1B7B0}
+  @media (min-width:560px){.cajas{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<h1>Piezas del laboratorio</h1>
+<p class="sub">Lo que se da a conocer, de un vistazo. <span id="hora"></span></p>
+<div class="barra"><button type="button" id="bAct">↻ Actualizar</button><div class="prog"><i id="prog"></i></div><span id="estado">Preparando…</span></div>
+<div id="avisos"></div>
+
+<h2>Piezas con contador</h2>
+<div id="piezas"></div>
+
+<h2>Comparación por días desde el lanzamiento</h2>
+<p class="nota">El día 1 de cada pieza es el día en que salió, así la comparación es justa aunque no salieran a la vez. Se cuentan <b>aparatos nuevos</b> cada día.</p>
+<div class="graf"><div id="gDias"></div><div class="info" id="gInfo">Toca un día para ver sus números.</div></div>
+<div class="ley" id="leyDias"></div>
+<div class="envol"><table id="tDias"><thead></thead><tbody></tbody></table></div>
+<p class="nota" id="notaDias"></p>
+
+<h2>Por dónde llegan (canal del enlace)</h2>
+<div class="envol"><table id="tCanal"><thead><tr><th>Canal</th><th>Aperturas</th><th>Aparatos nuevos</th><th>A Skool</th></tr></thead><tbody></tbody></table></div>
+<p class="nota" id="notaCanal"></p>
+
+<h2>Otras piezas con contador</h2>
+<div id="otras"></div>
+
+<h2>Piezas sin contador</h2>
+<p class="nota">No se han tocado. Para que entren aquí haría falta una línea en cada una que cuente una apertura, y decidir antes si cuentan solo las aperturas públicas: dentro de Fönia entran familias con un enlace de caso, y eso no debe mezclarse con lo que se da a conocer.</p>
+<ul class="sinc" id="sinContador"></ul>
+
+<h2>Miembros de Skool</h2>
+<div class="skool">
+  <p class="nota" style="margin:0 0 8px">Skool no deja leerlo desde aquí. Se anota a mano, se guarda solo en este aparato y no se envía a ningún sitio.</p>
+  <label>Miembros: <input type="number" min="0" inputmode="numeric" id="miembros"> <button type="button" id="bMiem">Guardar</button></label>
+  <p class="nota" id="miemInfo" style="margin:8px 0 0"></p>
+  <p class="nota" style="margin:6px 0 0"><a href="https://www.skool.com/logopedia-7339" target="_blank" rel="noopener">Abrir la comunidad en Skool →</a></p>
+</div>
+
+<h2>¿Responden las piezas?</h2>
+<div class="ping" id="ping"></div>
+<p class="nota" style="margin-top:8px">Solo se comprueba que la página contesta. No se abre el juego: abrir este panel no suma ninguna visita a ningún contador.</p>
+
+<h2>Cómo leerlo</h2>
+<p class="nota"><b>Personas distintas</b> son aparatos distintos: cada móvil o tableta cuenta una vez, y si alguien lo abre en dos aparatos cuenta dos. <b>Partidas terminadas</b> son partidas o tandas acabadas, no personas. Las pruebas del propio equipo no se cuentan si se abrió con <code>?yo=1</code>. Todo se cuenta de forma anónima; sin nombres, sin cuentas y sin cookies. Sin datos de pacientes.</p>
+
+<script>
+(function () {
+  'use strict';
+  var NS_J = 'foniafonia-juegos', NS_S = 'foniafonia-suena-lanz', BASE = 'https://abacus.jasoncameron.dev/get/';
+  var HOY = new Date(); HOY = new Date(HOY.getFullYear(), HOY.getMonth(), HOY.getDate());
+  function fecha(s) { var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function dk(d) { return d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2); }
+  function nDias(desde) { return Math.round((HOY - desde) / 86400000) + 1; }
+  function $(i) { return document.getElementById(i); }
+  function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+  function fmt(n) { return n === null || n === undefined ? '—' : String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function pc(a, b) { return (a === null || b === null || !b) ? null : Math.round(a / b * 100); }
+
+  /* ---------------- las piezas ---------------- */
+  var P = [
+    { id: 'snake', nombre: 'Snake de palabras', color: '#2a78d6', url: 'https://foniafonia.github.io/snake-de-palabras/', est: 'https://foniafonia.github.io/snake-de-palabras/estadisticas.html',
+      ns: NS_J, lanz: '2026-10-13', pre: 'snake',
+      k: { personas: 'snake_personas', aperturas: 'snake_aperturas', empezadas: 'snake_partidas', terminadas: 'snake_tandas_terminadas', skoolP: 'snake_skool_personas', prep: 'snake_partida_preparada', familia: 'snake_enlace_familia' },
+      skoolSitios: ['snake_skool_portada', 'snake_skool_final', 'snake_skool_idea_portada', 'snake_skool_idea_final', 'snake_skool_pausa', 'snake_skool_despedida'],
+      dia: { personas: 'snake_personas_', terminadas: 'snake_tandas_terminadas_', skool: 'snake_skool_dia_' }, terminadasDesde: '2026-10-18', canal: null, imprimir: null },
+    { id: 'suena', nombre: 'Suena igual', color: '#eb6834', url: 'https://foniafonia.github.io/suena-igual/', est: 'https://foniafonia.github.io/suena-igual/estadisticas.html',
+      ns: NS_S, lanz: '2026-10-18', pre: 'suena',
+      k: { personas: 'suena_personas', aperturas: 'suena_aperturas', empezadas: 'suena_partidas', terminadas: 'suena_partidas_terminadas', skoolP: 'suena_skool_personas', prep: 'suena_partida_preparada', familia: 'suena_enlace_familia', imprimir: 'suena_imprimir' },
+      skoolSitios: ['suena_skool_portada', 'suena_skool_final', 'suena_skool_idea_portada', 'suena_skool_idea_final', 'suena_skool_pausa', 'suena_skool_despedida'],
+      dia: { personas: 'suena_personas_', terminadas: 'suena_partidas_terminadas_', skool: 'suena_skool_dia_' }, terminadasDesde: '2026-10-18',
+      canal: { aperturas: 'suena_canal_', personas: 'suena_personas_canal_', skool: 'suena_skool_canal_' } }
+  ];
+  var CANALES = [['wa', 'WhatsApp'], ['tg', 'Telegram'], ['fb', 'Facebook'], ['ig', 'Instagram'], ['sk', 'Skool'], ['ln', 'LinkedIn']];
+  var OTRAS = [
+    { nombre: 'FonoKart', url: 'https://foniafonia.github.io/fonokart/', claves: [['Aperturas', NS_J, 'fonokart_aperturas']], nota: 'Solo cuenta aperturas, sin personas ni día. Ojo: la copia que usan las familias dentro de Fönia cuenta aquí también.' },
+    { nombre: 'Sucadash (Sukkot)', url: 'https://foniafonia.github.io/sucadash/', claves: [['Aperturas', NS_J, 'sucadash_aperturas'], ['Dispositivos', NS_J, 'sucadash_dispositivos'], ['Partidas', NS_J, 'sucadash_partidas']], nota: 'Otro proyecto (juegos de Sukkot). Solo por total.' },
+    { nombre: 'Sucotkart (Sukkot)', url: 'https://foniafonia.github.io/sucotkart/', claves: [['Aperturas', NS_J, 'sucotkart_aperturas'], ['Móviles', NS_J, 'sucotkart_moviles'], ['Carreras', NS_J, 'sucotkart_carreras']], nota: 'Otro proyecto (juegos de Sukkot). Solo por total.' }
+  ];
+  var SIN = [
+    ['FonoDash', 'Está en GitHub Pages sin ningún contador. Haría falta una línea que cuente la apertura y una por partida.'],
+    ['Espiral de colores', 'Vive dentro de Fönia. Para contar solo lo público haría falta una versión abierta con su propio contador.'],
+    ['Trabajamos la R', 'Vive dentro de Fönia (rotacismo). Igual: una versión abierta con contador, o contar solo las aperturas sin enlace de caso.'],
+    ['Rueda lectora', 'Dentro de Fönia. Lo que hacen las familias ya llega al buzón como dato clínico; eso no es «darlo a conocer».'],
+    ['Ruta de la prosodia', 'Dentro de Fönia. Mismo caso: haría falta una versión pública con contador.'],
+    ['Mi vocabulario de gestos', 'Dentro de Fönia. Mismo caso: haría falta una versión pública con contador.']
+  ];
+  var PINGS = P.map(function (p) { return [p.nombre, p.url]; }).concat([['FonoKart', 'https://foniafonia.github.io/fonokart/'], ['FonoDash', 'https://foniafonia.github.io/fonodash/'], ['Contador (Abacus)', 'https://abacus.jasoncameron.dev/get/' + NS_S + '/suena_personas']]);
+
+  /* ---------------- lectura de contadores: de una en una, con respiro (30 cada 10 s) ---------------- */
+  var V = {}, FALLOS = [], hechas = 0, total = 0, cola = Promise.resolve(), CK = 'panel-piezas-v1', cache = {};
+  try { cache = JSON.parse(localStorage.getItem(CK) || '{}'); } catch (e) { cache = {}; }
+  function guardaCache() { try { localStorage.setItem(CK, JSON.stringify(cache)); } catch (e) { } }
+  function pausa(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function pide(ns, k, intento) {
+    return fetch(BASE + ns + '/' + k, { cache: 'no-store' }).then(function (r) {
+      if (r.status === 404) return 0;
+      if (r.status === 429 && intento < 3) return pausa(4000).then(function () { return pide(ns, k, intento + 1); });
+      if (!r.ok) { FALLOS.push(k + ' (' + r.status + ')'); return null; }
+      return r.json().then(function (j) { return j && j.value ? j.value : 0; });
+    }).catch(function () { FALLOS.push(k + ' (sin respuesta)'); return null; });
+  }
+  /* pasado = día ya cerrado: se guarda y no se vuelve a pedir */
+  function lee(ns, k, pasado) {
+    var id = ns + '|' + k;
+    if (pasado && cache[id] !== undefined) { V[id] = cache[id]; return Promise.resolve(cache[id]); }
+    total++; avance();
+    var p = cola.then(function () { return pide(ns, k, 0); }).then(function (v) { V[id] = v; hechas++; avance(); if (pasado && v !== null) { cache[id] = v; guardaCache(); } return v; });
+    cola = p.then(function () { return pausa(380); }, function () { return pausa(380); });
+    return p;
+  }
+  function g(ns, k) { var v = V[ns + '|' + k]; return v === undefined ? null : v; }
+  function avance() { $('prog').style.width = (total ? Math.round(hechas / total * 100) : 0) + '%'; $('estado').textContent = hechas < total ? 'Leyendo contadores… ' + hechas + ' de ' + total : (FALLOS.length ? 'Terminado, con fallos' : 'Al día'); }
+
+  /* ---------------- tarjetas ---------------- */
+  var tarjetas = {};
+  function paso(titulo, valor, detalle, ancho, color) {
+    var d = el('div', 'paso'), t = el('div', 't'); t.appendChild(el('span', null, titulo + ': ')); t.firstChild.appendChild(el('b', null, valor)); t.appendChild(el('em', null, detalle || ''));
+    var b = el('div', 'b'), i = el('i'); i.style.width = Math.max(0, Math.min(100, ancho || 0)) + '%'; i.style.background = color; b.appendChild(i); d.appendChild(t); d.appendChild(b); return d;
+  }
+  function pintaPieza(p) {
+    var T = tarjetas[p.id]; if (!T) { T = tarjetas[p.id] = el('div', 'pieza'); $('piezas').appendChild(T); }
+    T.innerHTML = '';
+    var k = p.k, ns = p.ns, per = g(ns, k.personas), ape = g(ns, k.aperturas), emp = g(ns, k.empezadas), ter = g(ns, k.terminadas), sp = g(ns, k.skoolP), prep = g(ns, k.prep);
+    var cl = p.skoolSitios.map(function (s) { return g(ns, s); }), clics = cl.some(function (x) { return x === null; }) ? null : cl.reduce(function (a, b) { return a + b; }, 0);
+    var h = el('header'); var a = el('h3'), l = el('a', null, p.nombre); l.href = p.url; l.target = '_blank'; l.rel = 'noopener'; a.appendChild(l); h.appendChild(a);
+    h.appendChild(el('span', 'dia', 'salió el ' + fecha(p.lanz).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) + ' · día ' + nDias(fecha(p.lanz))));
+    var e = el('a', 'est', 'estadísticas →'); e.href = p.est; e.target = '_blank'; e.rel = 'noopener'; h.appendChild(e); T.appendChild(h);
+    var cajas = el('div', 'cajas');
+    [[per, 'personas distintas'], [ape, 'aperturas'], [ter, 'partidas terminadas'], [clics, 'pulsaciones a Skool']].forEach(function (c) { var d = el('div', 'caja'); d.appendChild(el('b', null, fmt(c[0]))); d.appendChild(el('span', null, c[1])); cajas.appendChild(d); });
+    T.appendChild(cajas);
+    var pEmp = per ? emp / per : null;
+    T.appendChild(paso('Abren', fmt(per) + ' personas', '', per === null ? 0 : 100, p.color));
+    T.appendChild(paso('Empiezan una partida', fmt(emp), pEmp === null ? '' : (Math.round(pEmp * 10) / 10 + ' partidas por persona').replace('.', ','), per && emp !== null ? Math.min(100, emp / per * 100) : 0, p.color));
+    var pt = pc(ter, emp);
+    T.appendChild(paso('Terminan', fmt(ter), pt === null ? '' : 'de cada 100 partidas empezadas, ' + pt + ' se terminan', pt === null ? 0 : pt, p.color));
+    var ps = pc(sp, per);
+    T.appendChild(paso('Pulsan Skool', fmt(sp) + ' personas', ps === null ? '' : 'de cada 100 que abren, ' + ps + ' pulsan', ps === null ? 0 : ps, p.color));
+    var x = el('div', 'extra');
+    [['Partidas preparadas', prep], ['Enlaces a familia', g(ns, k.familia)]].concat(k.imprimir ? [['Clics en imprimir', g(ns, k.imprimir)]] : []).forEach(function (c) { var s = el('span'); s.appendChild(document.createTextNode(c[0] + ': ')); s.appendChild(el('b', null, fmt(c[1]))); x.appendChild(s); });
+    T.appendChild(x);
+    if (p.id === 'snake') T.appendChild(el('p', 'nota', 'Las partidas terminadas por día solo se cuentan desde el 18/10; el total sí es de todo el tiempo.'));
+  }
+  function pintaOtras() {
+    var cont = $('otras'); cont.innerHTML = '';
+    OTRAS.forEach(function (o) {
+      var d = el('div', 'pieza'), h = el('header'), a = el('h3'), l = el('a', null, o.nombre); l.href = o.url; l.target = '_blank'; l.rel = 'noopener'; a.appendChild(l); h.appendChild(a); d.appendChild(h);
+      var cj = el('div', 'cajas'); o.claves.forEach(function (c) { var b = el('div', 'caja'); b.appendChild(el('b', null, fmt(g(c[1], c[2])))); b.appendChild(el('span', null, c[0].toLowerCase())); cj.appendChild(b); }); d.appendChild(cj);
+      d.appendChild(el('p', 'nota', o.nota)); cont.appendChild(d);
+    });
+  }
+
+  /* ---------------- comparación por días desde el lanzamiento ---------------- */
+  function datosDia(p) {
+    var out = [], d0 = fecha(p.lanz), n = nDias(d0);
+    for (var i = 0; i < n; i++) { var d = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + i), c = dk(d), hoy = (i === n - 1);
+      out.push({ n: i + 1, fecha: d, hoy: hoy, personas: g(p.ns, p.dia.personas + c), terminadas: d < fecha(p.terminadasDesde) ? undefined : g(p.ns, p.dia.terminadas + c), skool: g(p.ns, p.dia.skool + c) }); }
+    return out;
+  }
+  function pintaDias() {
+    var S = P.map(datosDia), N = Math.max.apply(null, S.map(function (s) { return s.length; }));
+    var NSV = 'http://www.w3.org/2000/svg', W = 340, H = 190, L = 30, R = 6, T = 10, B = 24, aw = W - L - R, ah = H - T - B;
+    var max = 4; S.forEach(function (s) { s.forEach(function (x) { if (x.personas > max) max = x.personas; }); });
+    var tope = (function (m) { var pot = Math.pow(10, Math.floor(Math.log(m / 4) / Math.LN10)), s = [1, 2, 2.5, 5, 10]; for (var u = 0; u < s.length; u++) if (s[u] * pot * 4 >= m) return Math.max(4, s[u] * pot * 4); return Math.ceil(m / 4) * 4; })(max),
+        y = function (v) { return T + ah - ah * v / tope; };
+    function sv(t, a) { var e = document.createElementNS(NSV, t); for (var kk in a) e.setAttribute(kk, a[kk]); return e; }
+    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Aparatos nuevos por día desde el lanzamiento, de cada pieza. Los números están en la tabla de abajo.' });
+    for (var q = 0; q <= 4; q++) { var v = tope * q / 4, yy = Math.round(y(v)) + .5; svg.appendChild(sv('line', { x1: L, x2: W - R, y1: yy, y2: yy, stroke: q ? '#e3e8e4' : '#b9c4bc', 'stroke-width': 1 })); var t = sv('text', { x: L - 4, y: yy + 3.5, 'text-anchor': 'end', 'font-size': 10, fill: '#52514e' }); t.textContent = Math.round(v); svg.appendChild(t); }
+    var paso_ = aw / N, bw = Math.max(5, Math.min(16, paso_ * .36));
+    for (var i = 0; i < N; i++) {
+      var cx = L + paso_ * i + paso_ / 2;
+      S.forEach(function (s, j) {
+        var x = s[i]; if (!x || x.personas === null) return;
+        var hh = Math.max(0, ah * x.personas / tope), xx = cx + (j ? 1 : -bw - 1);
+        svg.appendChild(sv('rect', { x: xx, y: y(x.personas), width: bw, height: hh, rx: 2.5, fill: P[j].color, opacity: x.hoy ? .55 : 1 }));
+      });
+      var tl = sv('text', { x: cx, y: H - 7, 'text-anchor': 'middle', 'font-size': 10, fill: '#52514e' }); tl.textContent = 'día ' + (i + 1); svg.appendChild(tl);
+      (function (i) { var z = sv('rect', { x: L + paso_ * i, y: 0, width: paso_, height: H, fill: 'transparent', style: 'cursor:pointer' }); z.addEventListener('click', function () { info(i); }); z.addEventListener('mouseenter', function () { info(i); }); svg.appendChild(z); })(i);
+    }
+    var gd = $('gDias'); gd.innerHTML = ''; gd.appendChild(svg);
+    function info(i) { $('gInfo').textContent = 'Día ' + (i + 1) + ': ' + P.map(function (p, j) { var x = S[j][i]; return p.nombre + ' ' + (x ? fmt(x.personas) + ' nuevos' + (x.hoy ? ' (hoy, incompleto)' : '') : 'aún no'); }).join(' · '); }
+    var ley = $('leyDias'); ley.innerHTML = ''; P.forEach(function (p) { var s = el('span'), i = el('i'); i.style.background = p.color; s.appendChild(i); s.appendChild(document.createTextNode(p.nombre + ' (salió el ' + fecha(p.lanz).toLocaleDateString('es-ES', { day: 'numeric', month: 'numeric' }) + ')')); ley.appendChild(s); });
+    var th = $('tDias').tHead, tb = $('tDias').tBodies[0]; th.innerHTML = ''; tb.innerHTML = '';
+    var r1 = el('tr'), r2 = el('tr'); r1.appendChild(el('th', null, 'Día')); r1.firstChild.rowSpan = 2;
+    P.forEach(function (p) { var c = el('th', null, p.nombre); c.colSpan = 3; c.style.textAlign = 'center'; c.style.color = p.color; r1.appendChild(c); ['nuevos', 'terminan', 'Skool'].forEach(function (n) { r2.appendChild(el('th', null, n)); }); });
+    th.appendChild(r1); th.appendChild(r2);
+    for (var d = 0; d < N; d++) {
+      var tr = el('tr'), hoyFila = S.some(function (s) { return s[d] && s[d].hoy; }); if (hoyFila) tr.className = 'hoy';
+      tr.appendChild(el('td', null, 'Día ' + (d + 1) + (hoyFila ? '*' : '')));
+      S.forEach(function (s) { var x = s[d]; [x ? x.personas : undefined, x ? x.terminadas : undefined, x ? x.skool : undefined].forEach(function (c) { tr.appendChild(el('td', null, c === undefined ? '·' : fmt(c))); }); });
+      tb.appendChild(tr);
+    }
+    $('notaDias').textContent = '* Hoy: el día no ha terminado. «·» es que ese día no existe aún o que esa cifra no se contaba por días (las partidas terminadas por día de Snake empiezan el 18/10). Skool son pulsaciones del día. Los totales de las tarjetas son de todo el tiempo.';
+  }
+
+  /* ---------------- canal ---------------- */
+  function pintaCanal() {
+    var tb = $('tCanal').tBodies[0]; tb.innerHTML = ''; var p = P[1], c = p.canal, hay = false;
+    CANALES.forEach(function (ca) { var a = g(p.ns, c.aperturas + ca[0]), b = g(p.ns, c.personas + ca[0]), s = g(p.ns, c.skool + ca[0]); if (a || b || s) hay = true; var tr = el('tr'); [ca[1], fmt(a), fmt(b), fmt(s)].forEach(function (x) { tr.appendChild(el('td', null, x)); }); tb.appendChild(tr); });
+    $('notaCanal').textContent = 'Suena igual: el canal es el que lleva el enlace (?c=wa, tg, fb, ig, sk o ln). Las aperturas sin canal no salen aquí. ' + (hay ? '' : 'Todavía no hay entradas con canal. ') + 'Snake no distingue el canal: haría falta añadirle el mismo contador y repartir enlaces con ?c=.';
+  }
+
+  /* ---------------- el resto ---------------- */
+  function pintaAvisos() {
+    var av = $('avisos'); av.innerHTML = '';
+    if (FALLOS.length) { var d = el('div', 'av'); d.appendChild(el('b', null, 'Hay lecturas que han fallado (' + FALLOS.length + ')')); d.appendChild(document.createTextNode('Los números marcados con «—» no se han podido leer ahora. Pulsa «Actualizar» en un minuto. Primeras: ' + FALLOS.slice(0, 4).join(', ') + (FALLOS.length > 4 ? '…' : ''))); av.appendChild(d); }
+    var mal = (window.__pingMal || []); if (mal.length) { var d2 = el('div', 'av'); d2.appendChild(el('b', null, 'Una pieza no responde')); d2.appendChild(document.createTextNode(mal.join(', '))); av.appendChild(d2); }
+    if (!FALLOS.length && !mal.length && hechas && hechas >= total) { var o = el('div', 'av ok'); o.appendChild(document.createTextNode('Todo responde y todas las lecturas están al día.')); av.appendChild(o); }
+  }
+  function ping() {
+    var cont = $('ping'); cont.innerHTML = ''; window.__pingMal = []; var tareas = PINGS.map(function (pp) {
+      var s = el('span', null, '… ' + pp[0]); cont.appendChild(s);
+      var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 10000);
+      return fetch(pp[1], { mode: 'no-cors', cache: 'no-store', signal: ctl.signal }).then(function () { clearTimeout(to); s.textContent = '✔ ' + pp[0]; }).catch(function () { clearTimeout(to); s.textContent = '✖ ' + pp[0]; s.className = 'mal'; window.__pingMal.push(pp[0]); });
+    });
+    return Promise.all(tareas).then(pintaAvisos);
+  }
+  function skoolManual() {
+    var K = 'panel-skool-miembros', inp = $('miembros'), info = $('miemInfo');
+    function muestra() { var v = null; try { v = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) { } if (v && v.n !== undefined) { inp.value = v.n; info.textContent = 'Último dato anotado: ' + v.n + ' miembros, el ' + v.f + '.'; } else info.textContent = 'Todavía no hay ningún dato anotado.'; }
+    $('bMiem').onclick = function () { var n = parseInt(inp.value, 10); if (isNaN(n) || n < 0) return; try { localStorage.setItem(K, JSON.stringify({ n: n, f: new Date().toLocaleDateString('es-ES') })); } catch (e) { } muestra(); };
+    muestra();
+  }
+  function pintaSin() { var u = $('sinContador'); u.innerHTML = ''; SIN.forEach(function (s) { var li = el('li', 'sin'); li.appendChild(el('b', null, s[0])); li.appendChild(el('span', null, s[1])); u.appendChild(li); }); }
+  function todo() { P.forEach(pintaPieza); pintaOtras(); pintaDias(); pintaCanal(); }
+
+  /* ---------------- carga ---------------- */
+  var cargando = false;
+  function carga() {
+    if (cargando) return; cargando = true; FALLOS = []; hechas = 0; total = 0; V = {}; $('bAct').disabled = true; $('estado').textContent = 'Leyendo contadores…';
+    var d = new Date(); $('hora').textContent = 'Mirado el ' + d.toLocaleDateString('es-ES') + ' a las ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + '.';
+    var tareas = [];
+    P.forEach(function (p) {
+      var ks = [p.k.personas, p.k.aperturas, p.k.empezadas, p.k.terminadas, p.k.skoolP, p.k.prep, p.k.familia].concat(p.k.imprimir ? [p.k.imprimir] : []).concat(p.skoolSitios);
+      ks.forEach(function (k) { tareas.push(lee(p.ns, k, false).then(function () { pintaPieza(p); })); });
+      var d0 = fecha(p.lanz), n = nDias(d0);
+      for (var i = 0; i < n; i++) { var dd = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + i), c = dk(dd), pas = i < n - 1;
+        ['personas', 'skool'].concat(dd < fecha(p.terminadasDesde) ? [] : ['terminadas']).forEach(function (m) { tareas.push(lee(p.ns, p.dia[m] + c, pas).then(pintaDias)); }); }
+    });
+    P[1] && CANALES.forEach(function (ca) { ['aperturas', 'personas', 'skool'].forEach(function (m) { tareas.push(lee(P[1].ns, P[1].canal[m] + ca[0], false).then(pintaCanal)); }); });
+    OTRAS.forEach(function (o) { o.claves.forEach(function (c) { tareas.push(lee(c[1], c[2], false).then(pintaOtras)); }); });
+    Promise.all(tareas).then(function () { cargando = false; $('bAct').disabled = false; avance(); todo(); pintaAvisos(); });
+    ping();
+  }
+  $('bAct').onclick = carga;
+  pintaSin(); skoolManual();
+  P.forEach(pintaPieza); pintaOtras(); pintaDias(); pintaCanal();
+  carga();
+  window.__panel = { carga: carga, V: function () { return V; }, FALLOS: function () { return FALLOS; } };
+})();
+</script>
+</body>
+</html>
