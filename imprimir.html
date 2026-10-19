@@ -3,76 +3,324 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Imprimir las cartas · Suena igual</title>
-<link rel="stylesheet" href="fuentes/fuentes.css?v=10142356">
+<title>Imprimir la baraja · Suena igual</title>
+<link rel="stylesheet" href="fuentes/fuentes.css?v=10191200">
 <style>
-/* Las cartas de la partida elegida, para recortar: 9 por hoja A4 (63 × 88 mm, el tamaño de una carta
-   de baraja). Se imprime desde el navegador. Las mismas reglas que el juego en pantalla. */
-:root{--rojo:#E0473C;--azul:#2E7CD6;--verde:#2FA866;--amarillo:#F2C230;--tinta:#10231A}
+/* ==========================================================================
+   SUENA IGUAL · baraja para imprimir (19/10/2026, petición de una maestra de AL vía José)
+   - La baraja COMPLETA de la regla elegida, siempre la misma (no una muestra al azar):
+     4 sonidos × 10 cartas (pares mínimos: 2 × 18), 4 «Roba 2», 4 «Pasa turno», 2 «Elige color»
+     y cartas en blanco hasta completar la hoja. Con el ajuste de seseo, como en el juego.
+   - Tamaño de baraja (63 × 88 mm), 9 por A4, centradas y con marcas de corte, para que el dorso
+     case al imprimir a doble cara. Texto y formas en vector.
+   - Cada palo tiene forma y trama propias (▲ rayas, ● puntos, ■ líneas, ◆ cuadrícula): se distinguen
+     en blanco y negro y sin ver los colores. Versión de ahorro de tinta.
+   - Hoja de reglas de una página para la caja.
+   ========================================================================== */
+:root{--tinta:#10231A;--marino:#123A5C;--oro:#F4B93A}
 *{box-sizing:border-box}
-body{margin:0;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;color:var(--tinta);background:#eef2f6}
-.barra{position:sticky;top:0;background:#123A5C;color:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center}
-.barra b{flex:1;min-width:200px;font-family:'Jost',system-ui,sans-serif;font-size:18px}
-.barra button,.barra a{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 14px;margin:4px;background:#F4B93A;color:var(--tinta);text-decoration:none;cursor:pointer}
-.barra a{background:#fff}
-.instr{max-width:760px;margin:14px auto;padding:0 14px;font-size:16px;line-height:1.5}
-.hoja{width:210mm;min-height:297mm;margin:10mm auto;background:#fff;padding:10mm 9mm;display:flex;flex-wrap:wrap;align-content:flex-start;box-shadow:0 4px 20px rgba(0,0,0,.15);page-break-after:always}
-.c{width:63mm;height:88mm;margin:0 0 2mm 0;border:1px dashed #b8c2cc;display:flex;align-items:center;justify-content:center}
-.c+.c{margin-left:0}
-.cara{width:59mm;height:84mm;border-radius:4mm;border:3mm solid;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;text-align:center;padding:4mm}
-.cara .p{font-weight:700;font-size:9mm;line-height:1.05;word-break:break-word}
-.cara .s{font-size:3.6mm;font-weight:700;margin-top:3mm;color:#4d6457}
-.cara .e{font-family:'Jost',system-ui,sans-serif;font-weight:600;font-size:18mm;line-height:1}
-.cara .esq{position:absolute;top:2mm;left:3mm;font-size:3.4mm;font-weight:700}
-.cara .pie{position:absolute;bottom:2mm;left:0;right:0;font-size:2.6mm;color:#6b7b88}
-.rojo{border-color:var(--rojo)}.azul{border-color:var(--azul)}.verde{border-color:var(--verde)}.amarillo{border-color:var(--amarillo)}
-.negra{border-color:#222;background:conic-gradient(var(--rojo) 0 25%,var(--azul) 0 50%,var(--verde) 0 75%,var(--amarillo) 0)}
-.negra .e,.negra .s{background:#fff;border-radius:3mm;padding:0 2mm}
-.reglas .cara{border-color:#123A5C;font-size:3.6mm;line-height:1.35;text-align:left;justify-content:flex-start}
-.reglas .cara b{font-family:'Jost',system-ui,sans-serif;font-size:5mm}
-@media print{body{background:#fff}.barra,.instr{display:none}.hoja{margin:0;box-shadow:none;padding:6mm 9mm}@page{size:A4;margin:0}}
+body{margin:0;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;color:var(--tinta);background:#e9eef3;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.barra{position:sticky;top:0;z-index:5;background:var(--marino);color:#fff;padding:10px 14px}
+.barra h1{margin:0 0 6px;font:600 19px/1.2 'Jost',system-ui,sans-serif}
+.ops{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:15px}
+.ops label{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.ops select{font:inherit;border-radius:8px;border:0;padding:4px 6px}
+.botones{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+.botones button,.botones a{font:inherit;font-weight:700;border:0;border-radius:12px;padding:9px 14px;background:var(--oro);color:var(--tinta);text-decoration:none;cursor:pointer}
+.botones a{background:#fff}
+.botones a.pdf{background:var(--oro)}
+.botones a.pdf.off{opacity:.45;pointer-events:none}
+.instr{max-width:800px;margin:12px auto;padding:0 14px;font-size:15.5px;line-height:1.5}
+.instr b{font-weight:700}
+.instr ul{margin:6px 0;padding-left:20px}
+/* hoja A4 y rejilla: 3 × 63 = 189 mm de ancho y 3 × 88 = 264 mm de alto, centradas (10,5 y 16,5 mm) */
+.hoja{position:relative;width:210mm;height:297mm;margin:10mm auto;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.15);overflow:hidden;page-break-after:always;break-after:page}
+.hoja>svg.marcas{position:absolute;left:0;top:0;width:210mm;height:297mm}
+.carta{position:absolute;width:63mm;height:88mm;overflow:hidden}
+.carta>svg{position:absolute;left:0;top:0;width:63mm;height:88mm}
+.carta .txt{position:absolute;left:8mm;right:8mm;top:15mm;bottom:15mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.carta .pal{font-weight:700;line-height:1.02;letter-spacing:.01em;overflow-wrap:anywhere}
+.carta .pista{margin-top:2.5mm;font-size:3.6mm;font-weight:700;color:#4f5f57;border-top:.3mm solid #c9d2cc;padding-top:1.5mm}
+.carta .esp{font:600 19mm/1 'Jost',system-ui,sans-serif}
+.carta .lab{margin-top:2mm;font-size:4.2mm;font-weight:700}
+.carta .pie{position:absolute;left:0;right:0;bottom:7.6mm;text-align:center;font-size:2.1mm;color:#8a968f;letter-spacing:.02em}
+.carta .blanco{width:100%;height:24mm;border:.35mm dashed #9aa6a0;border-radius:3mm;display:flex;align-items:flex-end;justify-content:center;padding-bottom:1.5mm;font-size:2.8mm;color:#8a968f}
+/* hoja de reglas */
+.reglas{padding:16mm 16mm 14mm;font-size:3.75mm;line-height:1.42}
+.reglas h2{font:600 9mm/1.1 'Jost',system-ui,sans-serif;margin:0 0 1mm;color:var(--marino)}
+.reglas .sub{font-size:4mm;color:#4f5f57;margin:0 0 5mm}
+.reglas h3{font:600 4.8mm/1.2 'Jost',system-ui,sans-serif;margin:4.5mm 0 1.2mm;color:var(--marino)}
+.reglas p,.reglas li{margin:0 0 1.4mm}
+.reglas ul,.reglas ol{margin:0;padding-left:5mm}
+.reglas .cols{columns:2;column-gap:9mm}
+.reglas .cols>div{break-inside:avoid}
+.reglas .palos{display:flex;gap:4mm;flex-wrap:wrap;margin:1mm 0}
+.reglas .palos span{display:inline-flex;align-items:center;gap:1.5mm;font-weight:700}
+.reglas .firma{position:absolute;left:16mm;right:16mm;bottom:9mm;font-size:2.8mm;color:#8a968f;display:flex;justify-content:space-between}
+@media print{
+  body{background:#fff}
+  .barra,.instr{display:none}
+  .hoja{margin:0;box-shadow:none}
+  @page{size:A4 portrait;margin:0}
+}
 </style>
 </head>
 <body>
-<div class="barra"><b id="tit">Suena igual · cartas para imprimir</b><button type="button" onclick="window.print()">🖨️ Imprimir</button><a href="./" id="volver">← Volver al juego</a></div>
-<p class="instr" id="instr"></p>
+<div class="barra">
+  <h1>Suena igual · baraja para imprimir</h1>
+  <div class="ops">
+    <label>Regla <select id="oRegla"><option value="inicio">Sonido del principio</option><option value="final">Sonido del final</option><option value="silabas">Número de sílabas</option><option value="par">Pares que se confunden</option></select></label>
+    <label id="lPar">Par <select id="oPar"></select></label>
+    <label>Pronunciación <select id="oPron"><option value="es">Z distinta de S (España)</option><option value="seseo">Seseo (S y Z suenan igual)</option></select></label>
+    <label>Tinta <select id="oTinta"><option value="color">A color</option><option value="ahorro">Ahorro de tinta</option></select></label>
+    <label><input type="checkbox" id="oPista"> Pista del sonido</label>
+    <label><input type="checkbox" id="oDorso" checked> Dorsos (doble cara)</label>
+    <label><input type="checkbox" id="oLinea" checked> Línea fina de corte</label>
+    <label><input type="checkbox" id="oReglas" checked> Hoja de reglas</label>
+  </div>
+  <div class="botones"><a href="#" id="bPdf" class="pdf" download>⬇ Descargar el PDF de esta baraja</a><button type="button" onclick="window.print()">🖨️ Imprimir desde aquí</button><a href="./" id="volver">← Volver al juego</a></div>
+  <div id="notaPdf" style="font-size:13px;margin-top:6px;opacity:.9"></div>
+</div>
+<div class="instr" id="instr"></div>
 <div id="hojas"></div>
-<script src="banco.js?v=10142356"></script>
-<script src="fonetica.js?v=10142356"></script>
-<script src="juego.js?v=10142356"></script>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- tramas por palo: en color van en blanco sobre el color; en ahorro, en el color sobre blanco -->
+    <pattern id="tr-rojo" width="2.4" height="2.4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="1" height="2.4" fill="currentColor"/></pattern>
+    <pattern id="tr-azul" width="2.6" height="2.6" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r=".6" fill="currentColor"/></pattern>
+    <pattern id="tr-verde" width="2.4" height="2.4" patternUnits="userSpaceOnUse"><rect width="2.4" height=".9" fill="currentColor"/></pattern>
+    <pattern id="tr-amarillo" width="2.6" height="2.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width=".7" height="2.6" fill="currentColor"/><rect width="2.6" height=".7" fill="currentColor"/></pattern>
+  </defs>
+</svg>
+<script src="banco.js?v=10191200"></script>
+<script src="fonetica.js?v=10191200"></script>
+<script src="juego.js?v=10191200"></script>
 <script>
 (function () {
-  var S = window.__suena, b = S.nuevaBaraja(), O = S.OPC;
-  var palabras = b.cartas.filter(function (c) { return c.tipo === 'palabra'; }).sort(function (x, y) { return x.son < y.son ? -1 : (x.son > y.son ? 1 : 0); });
-  var especiales = b.cartas.filter(function (c) { return c.tipo !== 'palabra'; });
-  var todas = [{ reglas: true }].concat(palabras, especiales);
-  document.getElementById('instr').textContent = 'Regla: casan por color o por ' + S.reglaTexto().toLowerCase() + '. ' + palabras.length + ' cartas de palabra y ' + especiales.length + ' especiales, en ' + Math.ceil(todas.length / 9) + ' hojas. Imprime en color, recorta por la línea de puntos y, si puedes, plastifica. Con la casilla de abajo puedes poner la pista del sonido en cada carta.';
-  var ins = document.getElementById('instr'), lab = document.createElement('label'), chk = document.createElement('input'); chk.type = 'checkbox'; chk.checked = O.pista;
-  lab.style.display = 'block'; lab.style.marginTop = '8px'; lab.appendChild(chk); lab.appendChild(document.createTextNode(' Poner la pista del sonido en cada carta')); ins.parentNode.insertBefore(lab, ins.nextSibling);
-  document.getElementById('volver').href = './' + location.search;
-  function pinta() {
-    var h = document.getElementById('hojas'); h.innerHTML = ''; var hoja = null;
-    todas.forEach(function (c, i) {
-      if (i % 9 === 0) { hoja = document.createElement('div'); hoja.className = 'hoja'; h.appendChild(hoja); }
-      var caja = document.createElement('div'); caja.className = 'c' + (c.reglas ? ' reglas' : ''); var f = document.createElement('div');
-      if (c.reglas) {
-        f.className = 'cara';
-        f.innerHTML = '<b>Suena igual</b><br><br>Se reparten 5 cartas a cada uno. Se pone una boca arriba.<br><br>Por turnos, se echa una carta <b style="font-size:inherit">del mismo color</b> o que <b style="font-size:inherit">suene igual</b>: ' + S.reglaTexto().toLowerCase() + '.<br><br>Al echarla, se dice la palabra en voz alta. Si no puedes, robas una.<br><br>+2: el otro roba dos. ⊘: el otro pierde el turno. ★: eliges color.<br><br>Gana quien se queda sin cartas.';
-      } else if (c.tipo === 'palabra') {
-        f.className = 'cara ' + c.color;
-        f.innerHTML = '';
-        var p = document.createElement('span'); p.className = 'p'; p.textContent = c.w; f.appendChild(p);
-        if (chk.checked) { var s = document.createElement('span'); s.className = 's'; s.textContent = S.nombreClave(c.son); f.appendChild(s); }
-      } else {
-        f.className = 'cara ' + (c.color || 'negra');
-        var e = document.createElement('span'); e.className = 'e'; e.textContent = c.tipo === 'roba2' ? '+2' : (c.tipo === 'pasa' ? '⊘' : '★'); f.appendChild(e);
-        var s2 = document.createElement('span'); s2.className = 's'; s2.textContent = c.tipo === 'roba2' ? 'Roba 2' : (c.tipo === 'pasa' ? 'Pasa turno' : 'Elige color'); f.appendChild(s2);
-      }
-      var pie = document.createElement('span'); pie.className = 'pie'; pie.textContent = 'Suena igual · Gabinete Fönia y ColmenIA'; f.appendChild(pie);
-      caja.appendChild(f); hoja.appendChild(caja);
-    });
+  'use strict';
+  var S = window.__suena, O = S.OPC, F = window.Fonetica;
+  var NS = 'http://www.w3.org/2000/svg';
+  var COL = { rojo: '#D9413A', azul: '#2B74C9', verde: '#25985A', amarillo: '#E8B21E' };
+  var TXT = { rojo: '#C2342D', azul: '#2B74C9', verde: '#1D7F49', amarillo: '#A87C00' };   /* tonos más oscuros para los símbolos grandes: se leen también en blanco y negro */
+  var NOMBRE = { rojo: 'rojo', azul: 'azul', verde: 'verde', amarillo: 'amarillo' };
+  var FORMA = { rojo: 'triángulo', azul: 'círculo', verde: 'cuadrado', amarillo: 'rombo' };
+  var COLORES = ['rojo', 'azul', 'verde', 'amarillo'];
+  var X0 = 10.5, Y0 = 16.5, W = 63, H = 88;          /* rejilla centrada en A4 (mm) */
+  function $(i) { return document.getElementById(i); }
+  function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+  function sv(t, a) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  function une(a, b) { var r = {}, k; for (k in a) r[k] = a[k]; for (k in b) r[k] = b[k]; return r; }
+
+  /* ---------- opciones: las del enlace del juego, si las hay ---------- */
+  var Pares = Object.keys(S.PARES);
+  function pintaPares() {
+    var s = $('oPar'), v = O.par; s.innerHTML = '';
+    if (O.pron === 'seseo' && v === 'sz') v = 'rl';
+    Pares.forEach(function (k) { if (O.pron === 'seseo' && k === 'sz') return; var o = el('option', null, F.corto(S.PARES[k][0]) + ' / ' + F.corto(S.PARES[k][1])); o.value = k; s.appendChild(o); });
+    s.value = v;
   }
-  chk.onchange = pinta; pinta();
+  $('oRegla').value = O.regla; $('oPron').value = O.pron; $('oPista').checked = !!O.pista; pintaPares();
+  function lee() {
+    O.regla = $('oRegla').value; O.par = $('oPar').value || O.par; O.pron = $('oPron').value; pintaPares(); O.par = $('oPar').value || 'rl';
+    $('lPar').style.display = O.regla === 'par' ? '' : 'none';
+  }
+
+  /* ---------- la baraja completa, siempre igual para las mismas opciones ---------- */
+  function baraja() {
+    var gs = S.grupos(), porGrupo = O.regla === 'par' ? 18 : 10, cartas = [], k = 0;
+    gs.forEach(function (g) {
+      /* en orden alfabético y repartidas a intervalos regulares: ni todas cortas ni todas largas; siempre las mismas */
+      var al = g[1].slice().sort(function (a, b) { return a[0].localeCompare(b[0], 'es'); }), pal = [], i;
+      if (al.length <= porGrupo) pal = al; else for (i = 0; i < porGrupo; i++) pal.push(al[Math.floor(i * al.length / porGrupo)]);
+      pal.forEach(function (p) { cartas.push({ tipo: 'palabra', w: p[0], n: p[1], son: g[0], color: COLORES[k++ % 4] }); });
+    });
+    var esp = [];
+    COLORES.forEach(function (c) { esp.push({ tipo: 'roba2', color: c }); });
+    COLORES.forEach(function (c) { esp.push({ tipo: 'pasa', color: c }); });
+    esp.push({ tipo: 'comodin' }, { tipo: 'comodin' });
+    var todas = cartas.concat(esp), blancas = (9 - todas.length % 9) % 9;
+    for (var k = 0; k < blancas; k++) todas.push({ tipo: 'blanca' });
+    return { todas: todas, palabras: cartas.length, grupos: gs.map(function (g) { return g[0]; }), blancas: blancas };
+  }
+  function pistaTexto(c) {
+    if (O.regla === 'inicio') return 'empieza por ' + F.corto(c.son);
+    if (O.regla === 'final') return 'acaba en ' + F.corto(c.son);
+    return S.nombreClave(c.son);
+  }
+
+  /* ---------- dibujo de una carta (SVG para marco, tramas y formas; texto en HTML) ---------- */
+  function forma(color, x, y, t, relleno) {
+    var g = sv('g', { transform: 'translate(' + x + ' ' + y + ')' }), a = { fill: relleno, stroke: '#fff', 'stroke-width': .35 };
+    if (color === 'rojo') g.appendChild(sv('path', une({ d: 'M0 -' + t + ' L' + (t * 1.05) + ' ' + (t * .8) + ' L-' + (t * 1.05) + ' ' + (t * .8) + 'Z' }, a)));
+    else if (color === 'azul') g.appendChild(sv('circle', une({ r: t * .9 }, a)));
+    else if (color === 'verde') g.appendChild(sv('rect', une({ x: -t * .82, y: -t * .82, width: t * 1.64, height: t * 1.64, rx: .3 }, a)));
+    else g.appendChild(sv('path', une({ d: 'M0 -' + t + ' L' + (t * .85) + ' 0 L0 ' + t + ' L-' + (t * .85) + ' 0Z' }, a)));
+    return g;
+  }
+  function marco(svg, color, ahorro) {
+    var c = COL[color];
+    /* banda de color con trama, y el centro en blanco */
+    var banda = sv('g', { color: ahorro ? c : '#fff' });
+    banda.appendChild(sv('rect', { x: 2.2, y: 2.2, width: W - 4.4, height: H - 4.4, rx: 4, fill: ahorro ? '#fff' : c, stroke: c, 'stroke-width': ahorro ? .6 : 0 }));
+    banda.appendChild(sv('rect', { x: 2.2, y: 2.2, width: W - 4.4, height: H - 4.4, rx: 4, fill: 'url(#tr-' + color + ')', opacity: ahorro ? .55 : .38 }));
+    svg.appendChild(banda);
+    svg.appendChild(sv('rect', { x: 6.2, y: 6.2, width: W - 12.4, height: H - 12.4, rx: 2.6, fill: '#fff', stroke: ahorro ? c : 'none', 'stroke-width': .35 }));
+    /* forma del palo en dos esquinas (la de abajo, girada) */
+    var f1 = forma(color, 10.6, 11.4, 2.6, c), f2 = forma(color, W - 10.6, H - 11.4, 2.6, c);
+    f2.setAttribute('transform', f2.getAttribute('transform') + ' rotate(180)');
+    svg.appendChild(f1); svg.appendChild(f2);
+  }
+  var nClip = 0;
+  function marcoComodin(svg, ahorro) {
+    var cx = W / 2, cy = H / 2;
+    var clip = sv('clipPath', { id: 'cl' + (++nClip) }); clip.appendChild(sv('rect', { x: 2.2, y: 2.2, width: W - 4.4, height: H - 4.4, rx: 4 })); svg.appendChild(clip);
+    var g = sv('g', { 'clip-path': 'url(#' + clip.getAttribute('id') + ')' });
+    [['rojo', 0, 0], ['azul', cx, 0], ['amarillo', 0, cy], ['verde', cx, cy]].forEach(function (q) {
+      var gg = sv('g', { color: ahorro ? COL[q[0]] : '#fff' });
+      gg.appendChild(sv('rect', { x: q[1], y: q[2], width: cx, height: cy, fill: ahorro ? '#fff' : COL[q[0]] }));
+      gg.appendChild(sv('rect', { x: q[1], y: q[2], width: cx, height: cy, fill: 'url(#tr-' + q[0] + ')', opacity: ahorro ? .55 : .38 }));
+      g.appendChild(gg);
+    });
+    svg.appendChild(g);
+    svg.appendChild(sv('rect', { x: 2.2, y: 2.2, width: W - 4.4, height: H - 4.4, rx: 4, fill: 'none', stroke: '#222', 'stroke-width': ahorro ? .6 : 0 }));
+    svg.appendChild(sv('rect', { x: 6.2, y: 6.2, width: W - 12.4, height: H - 12.4, rx: 2.6, fill: '#fff', stroke: ahorro ? '#222' : 'none', 'stroke-width': .35 }));
+    svg.appendChild(forma('rojo', 10.6, 11.4, 2.2, COL.rojo)); svg.appendChild(forma('azul', W - 10.6, 11.4, 2.2, COL.azul));
+    svg.appendChild(forma('amarillo', 10.6, H - 11.4, 2.2, COL.amarillo)); svg.appendChild(forma('verde', W - 10.6, H - 11.4, 2.2, COL.verde));
+  }
+  function iconoPasa(svg, color) {
+    var c = TXT[color];
+    svg.appendChild(sv('circle', { cx: W / 2, cy: 38, r: 10, fill: 'none', stroke: c, 'stroke-width': 3 }));
+    svg.appendChild(sv('line', { x1: W / 2 - 7, y1: 45, x2: W / 2 + 7, y2: 31, stroke: c, 'stroke-width': 3, 'stroke-linecap': 'round' }));
+  }
+  function iconoEstrella(svg) {
+    var p = [], cx = W / 2, cy = 38;
+    for (var i = 0; i < 10; i++) { var r = i % 2 ? 4.6 : 11, a = Math.PI / 5 * i - Math.PI / 2; p.push((cx + r * Math.cos(a)).toFixed(2) + ',' + (cy + r * Math.sin(a)).toFixed(2)); }
+    svg.appendChild(sv('polygon', { points: p.join(' '), fill: '#222', stroke: '#222', 'stroke-width': .6, 'stroke-linejoin': 'round' }));
+  }
+  function dorso(svg, ahorro) {
+    var m = '#123A5C', cx = W / 2, cy = H / 2 - 4, o = ahorro ? m : '#F4B93A';
+    svg.appendChild(sv('rect', { x: 2.2, y: 2.2, width: W - 4.4, height: H - 4.4, rx: 4, fill: ahorro ? '#fff' : m, stroke: m, 'stroke-width': ahorro ? .6 : 0 }));
+    svg.appendChild(sv('rect', { x: 5, y: 5, width: W - 10, height: H - 10, rx: 3, fill: 'none', stroke: o, 'stroke-width': .6 }));
+    svg.appendChild(sv('ellipse', { cx: cx, cy: cy, rx: 19, ry: 12, fill: 'none', stroke: o, 'stroke-width': 1.4 }));
+    /* corchea: cabeza, plica y bandera */
+    svg.appendChild(sv('ellipse', { cx: cx - 2.5, cy: cy + 4.5, rx: 3.2, ry: 2.3, fill: o, transform: 'rotate(-20 ' + (cx - 2.5) + ' ' + (cy + 4.5) + ')' }));
+    svg.appendChild(sv('rect', { x: cx + .2, y: cy - 8, width: 1.1, height: 12.8, fill: o }));
+    svg.appendChild(sv('path', { d: 'M' + (cx + 1.3) + ' ' + (cy - 8) + ' q5 2 4 7 q-1 -3 -4 -4z', fill: o }));
+    var t = sv('text', { x: cx, y: cy + 21, 'text-anchor': 'middle', 'font-family': 'Jost, system-ui, sans-serif', 'font-weight': 600, 'font-size': 5.2, fill: o, 'letter-spacing': '.6' }); t.textContent = 'SUENA IGUAL'; svg.appendChild(t);
+  }
+  function tamPal(w) { return Math.round(Math.min(14, 44 / (w.length * 0.6)) * 10) / 10; }
+  function carta(c, x, y, ahorro, pista, esDorso) {
+    var d = el('div', 'carta' + (esDorso ? ' dorso' : '')); d.style.left = x + 'mm'; d.style.top = y + 'mm';
+    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true' }); d.appendChild(svg);
+    if (esDorso) { dorso(svg, ahorro); return d; }
+    var tx = el('div', 'txt');
+    if (c.tipo === 'palabra') {
+      marco(svg, c.color, ahorro);
+      var p = el('div', 'pal', c.w); p.style.fontSize = tamPal(c.w) + 'mm'; tx.appendChild(p);
+      if (pista) tx.appendChild(el('div', 'pista', pistaTexto(c)));
+    } else if (c.tipo === 'roba2') {
+      marco(svg, c.color, ahorro);
+      var e = el('div', 'esp', '+2'); e.style.color = TXT[c.color]; tx.appendChild(e); tx.appendChild(el('div', 'lab', 'Roba 2'));
+    } else if (c.tipo === 'pasa') {
+      marco(svg, c.color, ahorro); iconoPasa(svg, c.color);
+      tx.style.justifyContent = 'flex-end'; tx.appendChild(el('div', 'lab', 'Pasa turno'));
+    } else if (c.tipo === 'comodin') {
+      marcoComodin(svg, ahorro); iconoEstrella(svg);
+      tx.style.justifyContent = 'flex-end'; tx.appendChild(el('div', 'lab', 'Elige color'));
+    } else {
+      svg.appendChild(sv('rect', { x: 2.2, y: 2.2, width: W - 4.4, height: H - 4.4, rx: 4, fill: '#fff', stroke: '#9aa6a0', 'stroke-width': .5 }));
+      tx.appendChild(el('div', 'blanco', 'escribe aquí una palabra'));
+      var lb = el('div', 'lab', 'Carta en blanco'); lb.style.color = '#6b7a72'; lb.style.fontSize = '3.4mm'; tx.appendChild(lb);
+    }
+    d.appendChild(tx);
+    d.appendChild(el('div', 'pie', 'Gabinete Fönia · ColmenIA'));
+    return d;
+  }
+  /* marcas de corte fuera de las cartas y, si se quiere, la línea fina de cada carta */
+  function marcas(linea) {
+    var s = sv('svg', { class: 'marcas', viewBox: '0 0 210 297', 'aria-hidden': 'true' });
+    for (var i = 0; i <= 3; i++) {
+      var x = X0 + i * W, y = Y0 + i * H;
+      s.appendChild(sv('line', { x1: x, y1: Y0 - 11, x2: x, y2: Y0 - 3, stroke: '#000', 'stroke-width': .25 }));
+      s.appendChild(sv('line', { x1: x, y1: Y0 + 3 * H + 3, x2: x, y2: Y0 + 3 * H + 11, stroke: '#000', 'stroke-width': .25 }));
+      s.appendChild(sv('line', { x1: X0 - 7, y1: y, x2: X0 - 2.5, y2: y, stroke: '#000', 'stroke-width': .25 }));
+      s.appendChild(sv('line', { x1: X0 + 3 * W + 2.5, y1: y, x2: X0 + 3 * W + 7, y2: y, stroke: '#000', 'stroke-width': .25 }));
+    }
+    if (linea) for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) s.appendChild(sv('rect', { x: X0 + c * W, y: Y0 + r * H, width: W, height: H, fill: 'none', stroke: '#b9c2bd', 'stroke-width': .15 }));
+    return s;
+  }
+
+  /* ---------- hoja de reglas ---------- */
+  function reglaLarga() {
+    if (O.regla === 'inicio') return 'empiezan por el mismo sonido';
+    if (O.regla === 'final') return 'acaban en el mismo sonido';
+    if (O.regla === 'silabas') return 'tienen el mismo número de sílabas';
+    var p = S.PARES[O.par]; return 'las dos tienen ' + F.corto(p[0]) + ' o las dos tienen ' + F.corto(p[1]);
+  }
+  function hojaReglas(B) {
+    var h = el('div', 'hoja reglas');
+    h.appendChild(el('h2', null, 'Suena igual'));
+    h.appendChild(el('p', 'sub', 'Juego de cartas de sonidos · de 2 a 4 jugadores · a partir de 6 años · unos 15 minutos'));
+    var col = el('div', 'cols');
+    function bloque(t, nodos) { var d = el('div'); d.appendChild(el('h3', null, t)); nodos.forEach(function (n) { d.appendChild(n); }); col.appendChild(d); }
+    function lista(items, ord) { var u = el(ord ? 'ol' : 'ul'); items.forEach(function (x) { u.appendChild(el('li', null, x)); }); return u; }
+    bloque('Qué hay en la baraja', [lista([B.palabras + ' cartas de palabra en cuatro palos', '4 cartas «Roba 2» y 4 «Pasa turno» (una de cada palo)', '2 cartas «Elige color»'].concat(B.blancas ? [B.blancas + ' cartas en blanco para escribir palabras vuestras'] : []))]);
+    var palos = el('div', 'palos');
+    COLORES.forEach(function (c) { var s = el('span'), mini = sv('svg', { viewBox: '-4 -4 8 8', width: '4mm', height: '4mm' }); mini.appendChild(forma(c, 0, 0, 3, COL[c])); s.appendChild(mini); s.appendChild(document.createTextNode(NOMBRE[c] + ' · ' + FORMA[c])); palos.appendChild(s); });
+    bloque('Los cuatro palos', [el('p', null, 'Cada palo tiene su color, su forma en las esquinas y su trama. Así se distinguen aunque se imprima en blanco y negro o se vean mal los colores.'), palos]);
+    bloque('Preparación', [lista(['Se barajan las cartas y se reparten 5 a cada jugador (7 si queréis partidas más largas).', 'Se pone una carta de palabra boca arriba en el centro. El resto, boca abajo, es el mazo.'], true)]);
+    bloque('Cómo se juega', [lista(['Por turnos, se echa una carta encima de la del centro si es del mismo palo o si suena igual: en esta baraja, si ' + reglaLarga() + '.', 'Al echar una carta de palabra, se dice en voz alta. Es lo que hace que suene.', 'Si no tienes ninguna que valga, robas una del mazo. Si vale, puedes echarla; si no, pasas.', 'Gana quien se queda antes sin cartas. Cuando te quede una, avisa: «¡última carta!».'], true)]);
+    bloque('Cartas especiales', [lista(['Roba 2: el siguiente roba dos cartas y pierde su turno. Vale encima del mismo palo o de otro «Roba 2».', 'Pasa turno: el siguiente pierde su turno. Vale encima del mismo palo o de otro «Pasa turno».', 'Elige color: vale siempre. Quien la echa dice qué palo sigue.'])]);
+    var ej = B.todas.filter(function (c) { return c.tipo === 'palabra'; }), pareja = '';
+    for (var i = 0; i < ej.length && !pareja; i++) for (var j = i + 1; j < ej.length; j++) if (ej[i].son === ej[j].son && ej[i].color !== ej[j].color) { pareja = '«' + ej[i].w + '» y «' + ej[j].w + '»'; break; }
+    var sonido = O.regla === 'inicio' ? 'Lo que cuenta es cómo suena, no cómo se escribe: «casa» y «queso» empiezan igual (los dos con K). En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo.'
+      : O.regla === 'final' ? 'Lo que cuenta es cómo suena el final, no cómo se escribe. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo: acaban igual.'
+      : O.regla === 'silabas' ? 'Se cuentan las sílabas que se oyen, dándolas con palmas: «ca-sa» y «pe-ro» tienen dos. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo: tienen las mismas sílabas.'
+      : 'Cuenta el sonido que se oye, escrito como se escriba. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo: tienen el mismo sonido.';
+    bloque('Suena igual, no se escribe igual', [el('p', null, sonido), el('p', null, O.pron === 'seseo' ? 'Esta baraja es para seseo: no lleva palabras con el sonido Z.' : 'Esta baraja distingue Z de S, como se habla en casi toda España.')]);
+    bloque('Variantes', [lista(['Con pista: imprimid la baraja con la pista del sonido en cada carta para quien empieza.', 'Por parejas: un adulto y un niño juegan juntos la misma mano.', 'Cartas en blanco: escribid palabras del niño o de clase y se juegan como las demás.'])]);
+    bloque('Para imprimir y montar', [lista(['A4, al 100 % o «tamaño real» (no «ajustar a la página»).', 'Con dorsos: a doble cara, girando por el borde largo. Haced antes una prueba con una hoja.', 'Mejor en cartulina de 160-250 g. Recortad por las marcas y redondead las esquinas si tenéis cortaesquinas.', 'Para que duren: fundas de cartas de 63,5 × 88 mm.'])]);
+    h.appendChild(col);
+    var f = el('div', 'firma'); f.appendChild(el('span', null, 'Suena igual · Gabinete Fönia · ColmenIA')); f.appendChild(el('span', null, 'Regla de esta baraja: ' + reglaLarga() + (O.pron === 'seseo' ? ' · seseo' : ''))); h.appendChild(f);
+    return h;
+  }
+
+  /* ---------- montar las hojas ---------- */
+  var pinta = function () {
+    lee();
+    var B = baraja(), ahorro = $('oTinta').value === 'ahorro', pista = $('oPista').checked, dor = $('oDorso').checked, linea = $('oLinea').checked, reg = $('oReglas').checked;
+    var hs = $('hojas'); hs.innerHTML = '';
+    var nh = Math.ceil(B.todas.length / 9);
+    for (var k = 0; k < nh; k++) {
+      var h = el('div', 'hoja'); h.appendChild(marcas(linea));
+      B.todas.slice(k * 9, k * 9 + 9).forEach(function (c, i) { h.appendChild(carta(c, X0 + (i % 3) * W, Y0 + Math.floor(i / 3) * H, ahorro, pista, false)); });
+      hs.appendChild(h);
+      if (dor) {
+        var hd = el('div', 'hoja');
+        /* al dar la vuelta por el borde largo, la columna 1 cae detrás de la 3: se colocan en espejo */
+        for (var i2 = 0; i2 < Math.min(9, B.todas.length - k * 9); i2++) hd.appendChild(carta(null, X0 + (2 - i2 % 3) * W, Y0 + Math.floor(i2 / 3) * H, ahorro, false, true));
+        hs.appendChild(hd);
+      }
+    }
+    if (reg) hs.appendChild(hojaReglas(B));
+    var ins = $('instr'); ins.innerHTML = '';
+    var p = el('p'); p.appendChild(el('b', null, 'Baraja completa: ')); p.appendChild(document.createTextNode(B.todas.length + ' cartas (' + B.palabras + ' de palabra, 10 especiales' + (B.blancas ? ', ' + B.blancas + ' en blanco' : '') + ') en ' + nh + ' hojas A4' + (dor ? ' a doble cara' : '') + (reg ? ', más la hoja de reglas' : '') + '. Sonidos: ' + B.grupos.map(function (g) { return O.regla === 'silabas' ? S.nombreClave(g) : F.corto(g); }).join(', ') + '.')); ins.appendChild(p);
+    var u = el('ul');
+    ['Imprimid al 100 % («tamaño real»), sin «ajustar a la página»: cada carta mide 63 × 88 mm, como una de baraja.', dor ? 'Doble cara, girando por el borde largo. Haced antes una prueba con la primera hoja: si el dorso no cae bien, imprimid las caras primero y los dorsos después dando la vuelta al papel.' : 'Sin dorsos: imprimid a una cara.', 'Para guardar en PDF, elegid «Guardar como PDF» en la ventana de imprimir y marcad «Gráficos de fondo» si aparece.'].forEach(function (t) { u.appendChild(el('li', null, t)); });
+    ins.appendChild(u);
+  };
+  /* el PDF listo para imprimir de la baraja elegida (con dorsos y hoja de reglas; sin pista del sonido) */
+  function enlacePdf() {
+    var id = (O.regla === 'par' ? 'par-' + O.par : O.regla) + '-' + O.pron + '-' + ($('oTinta').value === 'ahorro' ? 'ahorro' : 'color');
+    var a = $('bPdf'), nota = $('notaPdf'), pista = $('oPista').checked;
+    a.href = 'pdf/suena-igual-' + id + '.pdf'; a.className = 'pdf' + (pista ? ' off' : '');
+    nota.textContent = pista ? 'El PDF no lleva la pista del sonido: para esa versión, usad «Imprimir desde aquí».' : 'PDF A4 con las caras, los dorsos para doble cara y la hoja de reglas. Imprimidlo al 100 %.';
+  }
+  var pintaBase = pinta; pinta = function () { pintaBase(); enlacePdf(); };
+  ['oRegla', 'oPar', 'oPron', 'oTinta', 'oPista', 'oDorso', 'oLinea', 'oReglas'].forEach(function (id) { $(id).onchange = pinta; });
+  $('volver').href = './' + location.search;
+  pinta();
+  window.__imprimir = { baraja: baraja, pinta: pinta };
   try { if (localStorage.getItem('suena-no-contar') !== '1') new Image().src = 'https://abacus.jasoncameron.dev/hit/foniafonia-suena-lanz/suena_imprimir_abierta'; } catch (e) { }
 })();
 </script>

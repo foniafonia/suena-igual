@@ -104,7 +104,7 @@
   }
 
   /* la página de imprimir solo necesita la baraja */
-  if (!document.getElementById('app')) { window.__suena = { OPC: OPC, PARES: PARES, nuevaBaraja: nuevaBaraja, nombreClave: nombreClave, reglaTexto: reglaTexto, NOMBRE_COLOR: NOMBRE_COLOR }; return; }
+  if (!document.getElementById('app')) { window.__suena = { OPC: OPC, PARES: PARES, REGLAS: REGLAS, nuevaBaraja: nuevaBaraja, grupos: grupos, nombreClave: nombreClave, reglaTexto: reglaTexto, NOMBRE_COLOR: NOMBRE_COLOR, COLORES: COLORES }; return; }
 
   /* ====================== sonido y voz ====================== */
   var AC = window.AudioContext || window.webkitAudioContext, actx = null, sonido = true;
