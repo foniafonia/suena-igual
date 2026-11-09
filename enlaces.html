@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Todos los enlaces con contador</title>
+<style>
+:root{--tinta:#10231A;--suave:#4d6457;--linea:#DCE6DE;--fondo:#F3F5F2;--verde:#2FA866}
+*{box-sizing:border-box}
+body{font:17px/1.5 system-ui,-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:20px 14px 70px;background:var(--fondo);color:var(--tinta)}
+h1{font-size:26px;margin:0 0 2px}h2{font-size:20px;margin:0}
+.sub{color:var(--suave);font-size:15px;margin:0 0 14px}
+.nota{font-size:14px;color:var(--suave)}
+a{color:#1E7B4B}
+.juego{background:#fff;border:1px solid var(--linea);border-radius:18px;padding:14px;margin:14px 0}
+.juego header{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:8px}
+.juego header a{font-size:14px;margin-left:auto}
+.cajas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 10px}
+.caja{background:#F6F9F6;border:1px solid #E5EDE6;border-radius:12px;padding:8px 10px}
+.caja b{display:block;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.caja span{font-size:13px;color:var(--suave);line-height:1.25;display:block}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:6px 4px;border-bottom:1px solid #EEF2EE;text-align:right}
+th:first-child,td:first-child{text-align:left}
+td.enl{text-align:left;font-size:12.5px;color:var(--suave);word-break:break-all}
+button{font:inherit;font-size:14px;font-weight:700;padding:6px 12px;border-radius:10px;border:0;background:var(--verde);color:#fff;cursor:pointer}
+button.ok{background:#16482e}
+.tot{background:#0E3524;color:#fff;border-radius:18px;padding:14px;margin:10px 0}
+.tot b{font-size:34px}.tot span{display:block;color:#B8D9C4;font-size:14px}
+.tot .f{display:flex;gap:24px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<h1>🐝 Todos los enlaces con contador</h1>
+<p class="sub">Cada enlace con su canal para copiarlo. Los números se leen en vivo y llegan poco a poco. Los toques tuyos no cuentan si abres el enlace con <b>?yo=1</b> una vez en ese aparato.</p>
+<div class="tot"><div class="f"><div><b id="tA">…</b><span>aperturas</span></div><div><b id="tP">…</b><span>personas (suma de piezas)</span></div><div><b id="tS">…</b><span>pulsaciones a Skool</span></div></div></div>
+<div id="lista"></div>
+<p class="nota">Canales: gw grupos de WhatsApp · wa chats de WhatsApp · tg Telegram · fb Facebook (perfil) · ma grupos de Facebook · ig Instagram · th Threads · sk Skool · ln LinkedIn · fa grupos de autismo (solo generador). Un canal que sale a 0 es que todavía no se ha usado con ese enlace, o que esa pieza no lo mide.</p>
+<p class="nota">Panel con más detalle de Snake y Suena igual: <a href="panel.html">panel.html</a>. Estadísticas del Lince: <a href="https://foniafonia.github.io/el-lince-digital/estadisticas.html">aquí</a>.</p>
+
+<script>
+var BASE='https://abacus.jasoncameron.dev/get/';
+var CAN=[['gw','Grupos WhatsApp'],['wa','Chats WhatsApp'],['tg','Telegram'],['fb','Facebook perfil'],['ma','Grupos Facebook'],['ig','Instagram'],['th','Threads'],['sk','Skool'],['ln','LinkedIn']];
+var J='foniafonia-juegos',S='foniafonia-suena-lanz',L='foniafonia-lince',G='foniafonia-generador';
+var JUEGOS=[
+ {n:'Generador de intereses (pájaros, otoño)',u:'https://foniafonia.github.io/generador-intereses/',ns:G,ape:['gen_aperturas'],per:['gen_personas'],sk:['gen_skool'],can:function(c){return 'gen_c_'+c+'_aperturas'},canales:CAN.concat([['fa','Grupos autismo']])},
+ {n:'El Lince Digital',u:'https://foniafonia.github.io/el-lince-digital/',ns:L,ape:['lince_aperturas'],per:['lince_personas'],sk:['lince_skool_portada','lince_skool','lince_skool_idea_portada','lince_skool_informe'],can:function(c){return 'lince_c_'+c+'_aperturas'},canales:CAN},
+ {n:'Snake de palabras',u:'https://foniafonia.github.io/snake-de-palabras/',ns:J,ape:['snake_aperturas'],per:['snake_personas'],sk:['snake_skool_personas'],can:function(c){return 'snake_c_'+c+'_aperturas'},canales:CAN},
+ {n:'Suena igual',u:'https://foniafonia.github.io/suena-igual/',ns:S,ape:['suena_aperturas'],per:['suena_personas'],sk:['suena_skool_personas'],can:function(c){return 'suena_canal_'+c},canales:CAN},
+ {n:'Pasaporte',u:'https://foniafonia.github.io/pasaporte/',ns:J,ape:['pasaporte_aperturas'],per:['pasaporte_personas'],sk:['pasaporte_skool_clics'],can:function(c){return 'pasaporte_c_'+c+'_aperturas'},canales:CAN},
+ {n:'FonoKart',u:'https://foniafonia.github.io/fonokart/',ns:J,ape:['fonokart_aperturas'],per:[],sk:[],can:null,nota:'Solo cuenta aperturas. No mide canal: el enlace va sin ?c=.'},
+ {n:'Sucadash (Sukkot)',u:'https://foniafonia.github.io/sucadash/',ns:J,ape:['sucadash_aperturas'],per:['sucadash_dispositivos'],sk:[],can:null,nota:'Sin canal ni Skool: el enlace va sin ?c=.'},
+ {n:'Sucotkart (Sukkot)',u:'https://foniafonia.github.io/sucotkart/',ns:J,ape:['sucotkart_aperturas'],per:['sucotkart_moviles'],sk:[],can:null,nota:'Sin canal ni Skool: el enlace va sin ?c=.'}
+];
+var cola=[],activo=0;
+function pide(ns,k,cb){cola.push([ns,k,cb]);sigue()}
+function sigue(){ if(activo>=3||!cola.length)return; var t=cola.shift(); activo++;
+ fetch(BASE+t[0]+'/'+t[1]).then(function(r){return r.json()}).then(function(j){t[2](j.value==null?0:j.value)}).catch(function(){t[2](null)}).then(function(){activo--;setTimeout(sigue,120)}); sigue();}
+function suma(ns,ks,cb){ if(!ks.length){cb(null);return} var tot=0,n=0,fallo=false; ks.forEach(function(k){pide(ns,k,function(v){ if(v===null)fallo=true; else tot+=v; if(++n===ks.length)cb(fallo?null:tot)})}) }
+function fmt(v){return v===null?'—':String(v)}
+var T={a:0,p:0,s:0};
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function copiar(txt,b){ var f=function(){b.textContent='Copiado ✓';b.className='ok';setTimeout(function(){b.textContent='Copiar';b.className=''},1500)};
+ if(navigator.clipboard){navigator.clipboard.writeText(txt).then(f,function(){prompt('Copia el enlace:',txt)})}else{prompt('Copia el enlace:',txt)} }
+var lista=document.getElementById('lista');
+JUEGOS.forEach(function(j){
+ var d=el('div','juego'),h=el('header');h.appendChild(el('h2',null,j.n));var a=el('a',null,'abrir ↗');a.href=j.u;a.target='_blank';a.rel='noopener';h.appendChild(a);d.appendChild(h);
+ var cj=el('div','cajas'),cA=el('b',null,'…'),cP=el('b',null,'…'),cS=el('b',null,'…');
+ [[cA,'aperturas'],[cP,'personas / aparatos'],[cS,'pulsaciones a Skool']].forEach(function(x){var c=el('div','caja');c.appendChild(x[0]);c.appendChild(el('span',null,x[1]));cj.appendChild(c)});d.appendChild(cj);
+ suma(j.ns,j.ape,function(v){cA.textContent=fmt(v);if(v)T.a+=v;document.getElementById('tA').textContent=T.a});
+ if(j.per.length)suma(j.ns,j.per,function(v){cP.textContent=fmt(v);if(v)T.p+=v;document.getElementById('tP').textContent=T.p});else cP.textContent='—';
+ if(j.sk.length)suma(j.ns,j.sk,function(v){cS.textContent=fmt(v);if(v)T.s+=v;document.getElementById('tS').textContent=T.s});else cS.textContent='—';
+ var tb=el('table'),hd=tb.insertRow();
+ ['Canal','Aperturas',' '].forEach(function(x,i){var th=el('th',null,x);if(i==2)th.style.width='90px';hd.appendChild(th)});
+ if(j.can){ j.canales.forEach(function(c){var r=tb.insertRow();r.insertCell().textContent=c[1];var ca=r.insertCell();ca.textContent='…';pide(j.ns,j.can(c[0]),function(v){ca.textContent=fmt(v)});
+   var url=j.u+'?c='+c[0],cc=r.insertCell();var b=el('button',null,'Copiar');b.onclick=function(){copiar(url,b)};cc.appendChild(b);
+   var r2=tb.insertRow();var e=r2.insertCell();e.colSpan=3;e.className='enl';e.textContent=url;}); }
+ else { var r=tb.insertRow();r.insertCell().textContent='Enlace directo';r.insertCell().textContent='';var cc=r.insertCell();var b=el('button',null,'Copiar');b.onclick=function(){copiar(j.u,b)};cc.appendChild(b);
+   var r2=tb.insertRow();var e=r2.insertCell();e.colSpan=3;e.className='enl';e.textContent=j.u; }
+ d.appendChild(tb); if(j.nota)d.appendChild(el('p','nota',j.nota)); lista.appendChild(d);
+});
+</script>
+</body>
+</html>
