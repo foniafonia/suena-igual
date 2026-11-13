@@ -70,7 +70,7 @@ body{margin:0;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;color:var
 <div class="barra">
   <h1>Suena igual · baraja para imprimir</h1>
   <div class="ops">
-    <label>Regla <select id="oRegla"><option value="inicio">Sonido del principio</option><option value="final">Sonido del final</option><option value="silabas">Número de sílabas</option><option value="par">Pares que se confunden</option></select></label>
+    <label>Regla <select id="oRegla"><option value="inicio">Sonido del principio</option><option value="final">Sonido del final</option><option value="silabas">Número de sílabas</option><option value="silini">Sílaba del principio</option><option value="silfin">Sílaba del final</option><option value="campo">Familias de palabras</option><option value="par">Pares que se confunden</option></select></label>
     <label id="lPar">Par <select id="oPar"></select></label>
     <label>Pronunciación <select id="oPron"><option value="es">Z distinta de S (España)</option><option value="seseo">Seseo (S y Z suenan igual)</option></select></label>
     <label>Tinta <select id="oTinta"><option value="color">A color</option><option value="ahorro">Ahorro de tinta</option></select></label>
@@ -258,6 +258,9 @@ body{margin:0;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;color:var
     if (O.regla === 'inicio') return 'empiezan por el mismo sonido';
     if (O.regla === 'final') return 'acaban en el mismo sonido';
     if (O.regla === 'silabas') return 'tienen el mismo número de sílabas';
+    if (O.regla === 'silini') return 'empiezan por la misma sílaba';
+    if (O.regla === 'silfin') return 'acaban en la misma sílaba';
+    if (O.regla === 'campo') return 'son de la misma familia (' + O.campos.map(function (k) { return window.CAMPOS[k].n; }).join(', ') + ')';
     var p = S.PARES[O.par]; return 'las dos tienen ' + F.corto(p[0]) + ' o las dos tienen ' + F.corto(p[1]);
   }
   function hojaReglas(B) {
@@ -278,9 +281,12 @@ body{margin:0;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;color:var
     for (var i = 0; i < ej.length && !pareja; i++) for (var j = i + 1; j < ej.length; j++) if (ej[i].son === ej[j].son && ej[i].color !== ej[j].color) { pareja = '«' + ej[i].w + '» y «' + ej[j].w + '»'; break; }
     var sonido = O.regla === 'inicio' ? 'Lo que cuenta es cómo suena, no cómo se escribe: «casa» y «queso» empiezan igual (los dos con K). En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo.'
       : O.regla === 'final' ? 'Lo que cuenta es cómo suena el final, no cómo se escribe. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo: acaban igual.'
+      : O.regla === 'silini' ? 'Cuenta la primera sílaba que se oye: «pato» y «pala» empiezan por PA. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo.'
+      : O.regla === 'silfin' ? 'Cuenta la última sílaba que se oye: «luna» y «cuna» acaban en NA. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo.'
+      : O.regla === 'campo' ? 'Aquí no cuenta el sonido, sino qué es cada cosa: la manzana y el queso son comida. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo: son de la misma familia.'
       : O.regla === 'silabas' ? 'Se cuentan las sílabas que se oyen, dándolas con palmas: «ca-sa» y «pe-ro» tienen dos. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo: tienen las mismas sílabas.'
       : 'Cuenta el sonido que se oye, escrito como se escriba. En esta baraja, por ejemplo, ' + pareja + ' casan aunque sean de distinto palo: tienen el mismo sonido.';
-    bloque('Suena igual, no se escribe igual', [el('p', null, sonido), el('p', null, O.pron === 'seseo' ? 'Esta baraja es para seseo: no lleva palabras con el sonido Z.' : 'Esta baraja distingue Z de S, como se habla en casi toda España.')]);
+    bloque(O.regla === 'campo' ? 'De la misma familia' : 'Suena igual, no se escribe igual', [el('p', null, sonido), el('p', null, O.regla === 'campo' ? 'Al echar la carta se dice la palabra y de qué familia es: «manzana, comida».' : O.pron === 'seseo' ? 'Esta baraja es para seseo: no lleva palabras con el sonido Z.' : 'Esta baraja distingue Z de S, como se habla en casi toda España.')]);
     bloque('Variantes', [lista(['Con pista: imprimid la baraja con la pista del sonido en cada carta para quien empieza.', 'Por parejas: un adulto y un niño juegan juntos la misma mano.', 'Cartas en blanco: escribid palabras del niño o de clase y se juegan como las demás.'])]);
     bloque('Para imprimir y montar', [lista(['A4, al 100 % o «tamaño real» (no «ajustar a la página»).', 'Con dorsos: a doble cara, girando por el borde largo. Haced antes una prueba con una hoja.', 'Mejor en cartulina de 160-250 g. Recortad por las marcas y redondead las esquinas si tenéis cortaesquinas.', 'Para que duren: fundas de cartas de 63,5 × 88 mm.'])]);
     h.appendChild(col);

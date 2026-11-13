@@ -7,10 +7,11 @@ var dir = path.join(__dirname, '..');
 var html = fs.readFileSync(path.join(dir, 'imprimir.html'), 'utf8').replace(/<script src="([^"?]+)\?v=\d+"><\/script>/g, function (m, f) { return '<script>' + fs.readFileSync(path.join(dir, f), 'utf8') + '</script>'; });
 var d = new JSDOM(html, { runScripts: 'dangerously', url: 'https://foniafonia.github.io/suena-igual/imprimir.html?yo=1' });
 var w = d.window, doc = w.document, $ = function (s) { return doc.querySelector(s); };
-var VARIANTES = [['inicio'], ['final'], ['silabas'], ['par', 'rl'], ['par', 'bp'], ['par', 'td'], ['par', 'kg'], ['par', 'sz'], ['par', 'fz']], out = [];
+var VARIANTES = [['inicio'], ['final'], ['silabas'], ['par', 'rl'], ['par', 'bp'], ['par', 'td'], ['par', 'kg'], ['par', 'sz'], ['par', 'fz'], ['silini'], ['silfin'], ['campo']], out = [];
 ['es', 'seseo'].forEach(function (pron) {
   VARIANTES.forEach(function (v) {
     if (pron === 'seseo' && v[1] === 'sz') return;
+    if (pron === 'seseo' && v[0] === 'campo') return;   /* en familias no importa el sonido: una sola baraja */
     $('#oRegla').value = v[0]; $('#oPron').value = pron; if (v[1]) $('#oPar').value = v[1]; $('#oTinta').value = 'color'; $('#oPista').checked = false;
     w.__imprimir.pinta();
     var B = w.__imprimir.baraja(), bloques = [];
