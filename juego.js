@@ -17,7 +17,12 @@
   var QS; try { QS = new URLSearchParams(location.search); } catch (e) { QS = { get: function () { return null; } }; }
 
   /* ====================== opciones ====================== */
-  var REGLAS = ['inicio', 'final', 'par', 'silabas', 'silini', 'silfin'];
+  var REGLAS = ['inicio', 'final', 'par', 'silabas', 'silini', 'silfin', 'campo'];
+  /* 13/11/2026 (pedido en Skool): «campo» = de la misma familia de palabras (comida, ropa, animales…). Familias en banco-campos.js;
+     se juega con cuatro, por defecto comida, ropa, animales y cuerpo (?campos=comida,ropa,animales,casa para cambiarlas). */
+  var CAMPOS_DEF = ['comida', 'ropa', 'animales', 'cuerpo'];
+  function camposDe(v) { var C = window.CAMPOS || {}, l = String(v || '').split(',').filter(function (k, i, a) { return C[k] && a.indexOf(k) === i; }).slice(0, 4); return l.length === 4 ? l : CAMPOS_DEF.slice(); }
+  var CAMPO_DE = {}; Object.keys(window.CAMPOS || {}).forEach(function (k) { window.CAMPOS[k].w.forEach(function (w) { CAMPO_DE[w] = k; }); });
   /* 13/11/2026 (pedido en Skool): «la misma sílaba» al principio (silini) o al final (silfin). De momento, sílabas fáciles:
      consonante m, p, s, t, l, d o n + vocal. Con foco=m (o p, s…) las cuatro sílabas de la partida son de esa consonante. */
   function esSil() { return OPC.regla === 'silini' || OPC.regla === 'silfin'; }
@@ -31,6 +36,7 @@
     modo: QS.get('modo') === 'dos' ? 'dos' : 'maquina',
     mano: QS.get('mano') === '7' ? 7 : 5,
     pista: QS.get('pista') === '1',
+    campos: camposDe(QS.get('campos')),
     /* Con seseo (Latinoamérica, Canarias, buena parte de Andalucía) «cena» y «zapato» empiezan por S,
        pero la voz del juego es de España y las dice con Z. Para no contradecir lo que se oye, con
        seseo esas palabras salen de la baraja y el par S/Z no se ofrece. Por defecto, según el idioma
@@ -41,7 +47,7 @@
     })()
   };
   var KOPC = 'suena-igual-opc';
-  if (!FIJO) { try { var g = JSON.parse(localStorage.getItem(KOPC) || 'null'); if (g && REGLAS.indexOf(g.regla) >= 0) { OPC.regla = g.regla; OPC.foco = g.foco || ''; OPC.par = PARES[g.par] ? g.par : 'rl'; OPC.modo = g.modo === 'dos' ? 'dos' : 'maquina'; OPC.mano = g.mano === 7 ? 7 : 5; OPC.pista = !!g.pista; if (!QS.get('pron') && (g.pron === 'seseo' || g.pron === 'es')) OPC.pron = g.pron; } } catch (e) { } }
+  if (!FIJO) { try { var g = JSON.parse(localStorage.getItem(KOPC) || 'null'); if (g && REGLAS.indexOf(g.regla) >= 0) { OPC.regla = g.regla; OPC.foco = g.foco || ''; OPC.par = PARES[g.par] ? g.par : 'rl'; OPC.modo = g.modo === 'dos' ? 'dos' : 'maquina'; OPC.mano = g.mano === 7 ? 7 : 5; OPC.pista = !!g.pista; if (g.campos && !QS.get('campos')) OPC.campos = camposDe(g.campos.join ? g.campos.join(',') : g.campos); if (!QS.get('pron') && (g.pron === 'seseo' || g.pron === 'es')) OPC.pron = g.pron; } } catch (e) { } }
   if (FIJO) document.body.className += ' fijado';
   if (OPC.pron === 'seseo' && OPC.par === 'sz') OPC.par = 'rl';
   function guardaOpc() { if (FIJO) return; try { localStorage.setItem(KOPC, JSON.stringify(OPC)); } catch (e) { } }
@@ -52,6 +58,7 @@
     if (OPC.regla === 'inicio') return F.primero(w);
     if (OPC.regla === 'final') return F.ultimo(w);
     if (OPC.regla === 'silabas') return n >= 4 ? '4' : String(n);
+    if (OPC.regla === 'campo') { var cm = CAMPO_DE[w]; return cm && OPC.campos.indexOf(cm) >= 0 ? cm : null; }
     if (esSil()) { var sl = (OPC.regla === 'silini' ? F.silabaIni(w) : F.silabaFin(w)).son; return SIL_FACIL.test(sl) ? sl : null; }
     var p = PARES[OPC.par], a = F.tiene(w, p[0]), b = F.tiene(w, p[1]);
     return a && !b ? p[0] : (b && !a ? p[1] : null);
@@ -60,6 +67,7 @@
     if (OPC.regla === 'silabas') return k === '4' ? '4 o más sílabas' : k + ' sílaba' + (k === '1' ? '' : 's');
     if (OPC.regla === 'par') return 'tiene ' + F.corto(k);
     if (esSil()) return String(k).toUpperCase();
+    if (OPC.regla === 'campo') return (window.CAMPOS && window.CAMPOS[k] ? window.CAMPOS[k].n : k).toUpperCase();
     return F.corto(k);
   }
   function reglaTexto() {
@@ -68,6 +76,7 @@
     if (OPC.regla === 'silabas') return 'el mismo número de SÍLABAS';
     if (OPC.regla === 'silini') return 'la misma SÍLABA al PRINCIPIO';
     if (OPC.regla === 'silfin') return 'la misma SÍLABA al FINAL';
+    if (OPC.regla === 'campo') return 'la misma FAMILIA (' + OPC.campos.map(function (k) { return window.CAMPOS[k].n; }).join(', ') + ')';
     var p = PARES[OPC.par]; return 'las dos con ' + F.corto(p[0]) + ' o las dos con ' + F.corto(p[1]);
   }
   function porQue(carta, arriba) {
@@ -76,6 +85,7 @@
     if (OPC.regla === 'final') return w + ' acaba en ' + F.corto(carta.son) + ' y ' + a + ' en ' + F.corto(arriba.son);
     if (OPC.regla === 'silabas') return w + ' tiene ' + nombreClave(carta.son) + ' y ' + a + ' ' + nombreClave(arriba.son);
     if (OPC.regla === 'silini') return w + ' empieza por ' + nombreClave(carta.son) + ' y ' + a + ' por ' + nombreClave(arriba.son);
+    if (OPC.regla === 'campo') return w + ' es de ' + nombreClave(carta.son).toLowerCase() + ' y ' + a + ' de ' + nombreClave(arriba.son).toLowerCase();
     if (OPC.regla === 'silfin') return w + ' acaba en ' + nombreClave(carta.son) + ' y ' + a + ' en ' + nombreClave(arriba.son);
     return w + ' tiene ' + F.corto(carta.son) + ' y ' + a + ' tiene ' + F.corto(arriba.son);
   }
@@ -85,6 +95,7 @@
     if (OPC.regla === 'silabas') return 'las dos tienen ' + nombreClave(carta.son);
     if (OPC.regla === 'silini') return 'las dos empiezan por ' + nombreClave(carta.son);
     if (OPC.regla === 'silfin') return 'las dos acaban en ' + nombreClave(carta.son);
+    if (OPC.regla === 'campo') return 'las dos son de ' + nombreClave(carta.son).toLowerCase();
     return 'las dos tienen ' + F.corto(carta.son);
   }
 
@@ -95,8 +106,9 @@
      diez palabras por grupo repartidas en los cuatro colores, y ocho cartas especiales. */
   function grupos() {
     var por = {};
-    (esSil() ? BANCO.concat(window.BANCO_SILABAS || []) : BANCO).forEach(function (p) { if (OPC.pron === 'seseo' && F.tiene(p[0], 'z')) return; var k = clave(p[0], p[1]); if (k === null || k === undefined) return; (por[k] = por[k] || []).push(p); });
+    (esSil() ? BANCO.concat(window.BANCO_SILABAS || []) : (OPC.regla === 'campo' ? BANCO.concat(window.BANCO_SILABAS || [], window.BANCO_CAMPOS || []) : BANCO)).forEach(function (p) { if (OPC.pron === 'seseo' && OPC.regla !== 'campo' && F.tiene(p[0], 'z')) return; var k = clave(p[0], p[1]); if (k === null || k === undefined) return; (por[k] = por[k] || []).push(p); });
     if (OPC.regla === 'par') return PARES[OPC.par].map(function (k) { return [k, por[k] || []]; });
+    if (OPC.regla === 'campo') return OPC.campos.map(function (k) { return [k, por[k] || []]; });
     var lista = Object.keys(por).map(function (k) { return [k, por[k]]; }).filter(function (x) { return x[1].length >= 5; }).sort(function (a, b) { return b[1].length - a[1].length; });
     var foco = OPC.foco ? (OPC.foco === 'r' ? 'rr' : OPC.foco) : '';
     var res = [];
@@ -154,6 +166,7 @@
     if (OPC.regla === 'silabas') return 'que tenga las mismas sílabas';
     if (OPC.regla === 'silini') return 'que empiece por la misma sílaba';
     if (OPC.regla === 'silfin') return 'que acabe en la misma sílaba';
+    if (OPC.regla === 'campo') return 'que sea de la misma familia';
     var p = PARES[OPC.par]; return 'que tenga el mismo sonido (' + F.corto(p[0]) + ' o ' + F.corto(p[1]) + ')';
   }
   function guiaRegla() { return 'Toca una carta de abajo del mismo color o ' + igualTexto() + ' que la del centro. Si no tienes ninguna, toca «Robar carta».'; }
@@ -368,12 +381,12 @@
     var J = 0, jug = G.jug.filter(function (x) { return x.j === J; }), mal = G.intentos.filter(function (x) { return x.j === J; });
     var pal = jug.filter(function (x) { return x.tipo === 'palabra'; }), son = pal.filter(function (x) { return x.porSonido; });
     var tot = jug.length + mal.length, prec = tot ? jug.length / tot : null;
-    var confs = {}; mal.forEach(function (x) { if (x.conf) { var k = F.corto(x.conf[0]) + ' por ' + F.corto(x.conf[1]); if (OPC.regla === 'silabas') k = x.conf[0] + ' por ' + x.conf[1] + ' sílabas'; confs[k] = (confs[k] || 0) + 1; } });
+    var confs = {}; mal.forEach(function (x) { if (x.conf) { var k = F.corto(x.conf[0]) + ' por ' + F.corto(x.conf[1]); if (OPC.regla === 'silabas') k = x.conf[0] + ' por ' + x.conf[1] + ' sílabas'; if (OPC.regla === 'campo') k = nombreClave(x.conf[0]).toLowerCase() + ' por ' + nombreClave(x.conf[1]).toLowerCase(); confs[k] = (confs[k] || 0) + 1; } });
     var med = mediana(jug.concat(mal).map(function (x) { return x.ms; })), seg = Math.max(1, Math.round((ahora() - G.inicio) / 1000));
     var como = prec === null || tot < 4 ? 'sin dato' : (prec >= 0.85 ? 'bien' : (prec >= 0.6 ? 'regular' : 'le cuesta'));
     var ck = Object.keys(confs).sort(function (a, b) { return confs[b] - confs[a]; });
     return [
-      ['Regla', 'casan por color o por ' + reglaTexto().replace('PRINCIPIO', 'principio').replace('FINAL', 'final').replace('SÍLABAS', 'sílabas').replace('SÍLABA', 'sílaba') + (OPC.foco && OPC.regla !== 'par' && OPC.regla !== 'silabas' ? ' (con ' + F.corto(OPC.foco === 'r' ? 'rr' : OPC.foco) + ' seguro)' : '')],
+      ['Regla', 'casan por color o por ' + reglaTexto().replace('PRINCIPIO', 'principio').replace('FINAL', 'final').replace('SÍLABAS', 'sílabas').replace('SÍLABA', 'sílaba').replace('FAMILIA', 'familia') + (OPC.foco && OPC.regla !== 'par' && OPC.regla !== 'silabas' ? ' (con ' + F.corto(OPC.foco === 'r' ? 'rr' : OPC.foco) + ' seguro)' : '')],
       ['Partida', (OPC.modo === 'dos' ? 'dos jugadores' : 'contra la máquina') + ' · ' + (parcial ? 'sin terminar' : (G.ganador === 0 ? 'ganada' : 'perdida'))],
       ['Cartas echadas', jug.length + ' (' + son.length + ' por sonido, ' + (pal.length - son.length) + ' por color, ' + (jug.length - pal.length) + ' especiales)'],
       ['Por sonido', son.length ? son.slice(0, 8).map(function (x) { return x.w; }).join(', ') : 'ninguna'],
@@ -420,7 +433,7 @@
     $('vInicio').className = 'velo on';
   }
   function ejemplo(cont) {
-    var ej = OPC.regla === 'silini' ? [['rojo', 'pato'], ['azul', 'pala'], ['verde', 'papel'], 'pa'] : (OPC.regla === 'silfin' ? [['rojo', 'luna'], ['azul', 'cuna'], ['verde', 'rana'], 'na'] : [['rojo', 'casa'], ['azul', 'queso'], ['verde', 'kilo'], 'k']);
+    var ej = OPC.regla === 'campo' ? [['rojo', 'manzana'], ['azul', 'queso'], ['verde', 'pan'], 'comida'] : OPC.regla === 'silini' ? [['rojo', 'pato'], ['azul', 'pala'], ['verde', 'papel'], 'pa'] : (OPC.regla === 'silfin' ? [['rojo', 'luna'], ['azul', 'cuna'], ['verde', 'rana'], 'na'] : [['rojo', 'casa'], ['azul', 'queso'], ['verde', 'kilo'], 'k']);
     ej.slice(0, 3).forEach(function (x) { cont.appendChild(cartaDOM({ tipo: 'palabra', w: x[1], color: x[0], son: ej[3] })); });
   }
   muestraInicio();

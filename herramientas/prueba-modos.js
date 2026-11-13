@@ -25,7 +25,20 @@ if (require.main === module) {
   var f = abre('?regla=inicio'), SF = f.window.__suena, extra = {}; (f.window.BANCO_SILABAS || []).forEach(function (p) { extra[p[0]] = 1; });
   var usa = SF.nuevaBaraja().cartas.filter(function (c) { return c.tipo === 'palabra' && extra[c.w]; });
   ok('las reglas de antes no usan las palabras nuevas', usa.length === 0, usa.map(function (c) { return c.w; }).join(' '));
-  var malos = [].concat(d.errs, e.errs, f.errs).filter(function (x) { return !/Not implemented|Could not load/.test(x); });
+  /* familias de palabras */
+  var g = abre('?regla=campo'), SG = g.window.__suena, gg = SG.grupos(), C = g.window.CAMPOS, bg = SG.nuevaBaraja().cartas.filter(function (c) { return c.tipo === 'palabra'; });
+  ok('campo: comida, ropa, animales y cuerpo, con 5 palabras o más', gg.map(function (x) { return x[0]; }).join() === 'comida,ropa,animales,cuerpo' && gg.every(function (x) { return x[1].length >= 5; }), gg.map(function (x) { return x[0] + ':' + x[1].length; }).join(' '));
+  ok('…cada carta es de su familia', bg.every(function (c) { return C[c.son].w.indexOf(c.w) >= 0; }));
+  ok('…y todas tienen voz Piper', bg.every(function (c) { return g.window.VOZ_SNAKE[c.w] && fs.existsSync(path.join(RAIZ, 'voz', g.window.VOZ_SNAKE[c.w] + '.mp3')); }), bg.filter(function (c) { return !g.window.VOZ_SNAKE[c.w]; }).map(function (c) { return c.w; }).join(' '));
+  var arr = bg[0], misma = bg.filter(function (c) { return c.son === arr.son && c.color !== arr.color; })[0], otra = bg.filter(function (c) { return c.son !== arr.son && c.color !== arr.color; })[0];
+  var Gs = SG.estado(); if (!Gs) { SG.juega(); Gs = SG.estado(); } Gs.descarte.push(arr); Gs.color = arr.color;
+  ok('vale la de la misma familia y no la de otra', SG.vale(misma) === true && SG.vale(otra) === false, arr.w + ' / ' + misma.w + ' / ' + otra.w);
+  ok('regla en pantalla', /misma FAMILIA \(comida, ropa, animales, cuerpo\)/.test(SG.reglaTexto()), SG.reglaTexto());
+  var h2 = abre('?regla=campo&campos=animales,cuerpo,casa,transporte').window.__suena.grupos();
+  ok('campo con otras cuatro familias por el enlace', h2.map(function (x) { return x[0]; }).join() === 'animales,cuerpo,casa,transporte' && h2.every(function (x) { return x[1].length >= 5; }), h2.map(function (x) { return x[0] + ':' + x[1].length; }).join(' '));
+  var se = abre('?regla=campo&pron=seseo').window.__suena.grupos();
+  ok('con seseo no se quitan palabras con z (aquí no importa el sonido)', se.some(function (x) { return x[1].some(function (p) { return p[0] === 'zapato'; }); }));
+  var malos = [].concat(d.errs, e.errs, f.errs, g.errs).filter(function (x) { return !/Not implemented|Could not load/.test(x); });
   ok('sin errores de página', !malos.length, malos.slice(0, 2).join(' ; '));
   console.log(fallos ? fallos + ' FALLOS' : 'Todo correcto'); process.exit(fallos ? 1 : 0);
 }

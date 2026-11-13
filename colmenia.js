@@ -88,20 +88,22 @@
     ['fin', 'Sonido del final', 'mesa, casa… / sol, papel…', { regla: 'final' }],
     ['sil', 'Número de sílabas', 'contar golpes de voz', { regla: 'silabas' }],
     ['silini', 'Sílaba del principio', 'pato, pala, papel…', { regla: 'silini' }],
-    ['silfin', 'Sílaba del final', 'luna, cuna, rana…', { regla: 'silfin' }]
+    ['silfin', 'Sílaba del final', 'luna, cuna, rana…', { regla: 'silfin' }],
+    ['campo', 'Familias de palabras', 'comida, ropa, animales…', { regla: 'campo' }]
   ];
   function opt(sel, lista, val) { sel.innerHTML = ''; lista.forEach(function (o) { var x = el('option', null, o[1]); x.value = o[0]; sel.appendChild(x); }); sel.value = val; }
   function campo(lbl, id, lista) { var d = el('div', 'campo'), l = el('label', null, lbl); l.htmlFor = id; var s = el('select'); s.id = id; d.appendChild(l); d.appendChild(s); return [d, s, lista]; }
   function enlaceParams() {
-    if (!E.regla) E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron };   /* desde la portada, sin haber abierto «preparar» */
+    if (!E.regla) E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron, campos: (O.campos || []).slice() };   /* desde la portada, sin haber abierto «preparar» */
     var p = ['regla=' + E.regla];
     if (E.regla === 'par') p.push('par=' + E.par); else if (E.foco && (E.regla === 'inicio' || E.regla === 'silini' || E.regla === 'silfin')) p.push('foco=' + E.foco);
+    if (E.regla === 'campo' && E.campos && E.campos.length === 4) p.push('campos=' + E.campos.join(','));
     if (E.pron === 'seseo') p.push('pron=seseo'); else p.push('pron=es');
     if (E.modo === 'dos') p.push('modo=dos'); if (E.mano === 7) p.push('mano=7'); if (E.pista) p.push('pista=1');
     return '?' + p.join('&');
   }
   function abrePrepara() {
-    E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron };
+    E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron, campos: (O.campos || []).slice() };
     portada.className = 'velo portada'; $('vInicio').className = 'velo'; $('vFin').className = 'velo';
     pintaPrepara(); prep.className = 'velo portada on';
   }
@@ -122,6 +124,13 @@
     if (E.regla === 'silini' || E.regla === 'silfin') {
       var sc = campo('Sílabas con', 'pSilCon'); opt(sc[1], [['', 'Todas las fáciles (m, p, s, t, l, d, n)'], ['m', 'M (ma, me, mi…)'], ['p', 'P (pa, pe, pi…)'], ['s', 'S (sa, se, si…)'], ['t', 'T (ta, te, ti…)'], ['l', 'L (la, le, li…)'], ['d', 'D (da, de, di…)'], ['n', 'N (na, ne, no…)']], /^[mpstldn]$/.test(E.foco) ? E.foco : '');
       sc[1].onchange = function () { E.foco = sc[1].value; }; tq.appendChild(sc[0]);
+    }
+    /* 13/11/2026: en «familias», qué cuatro familias */
+    if (E.regla === 'campo') {
+      var fc = campo('Familias', 'pCampos'), GR = [['comida,ropa,animales,cuerpo', 'Comida, ropa, animales y cuerpo'], ['comida,ropa,animales,casa', 'Comida, ropa, animales y cosas de casa'], ['animales,cuerpo,casa,transporte', 'Animales, cuerpo, cosas de casa y transportes']];
+      var actual = (E.campos || []).join(','); opt(fc[1], GR, GR.some(function (g) { return g[0] === actual; }) ? actual : GR[0][0]);
+      if (!GR.some(function (g) { return g[0] === actual; })) E.campos = GR[0][0].split(',');
+      fc[1].onchange = function () { E.campos = fc[1].value.split(','); }; tq.appendChild(fc[0]);
     }
     tq.appendChild(el('h2', null, '2 · Cómo se juega'));
     var f = el('div', 'fila2');
@@ -157,10 +166,11 @@
     if (E.regla === 'inicio') return 'el mismo sonido al principio' + (E.foco ? ' (con ' + (E.foco === 'r' ? 'R fuerte' : E.foco.toUpperCase()) + ' seguro)' : '');
     if (E.regla === 'final') return 'el mismo sonido al final';
     if (E.regla === 'silabas') return 'el mismo número de sílabas';
+    if (E.regla === 'campo') return 'la misma familia (' + (E.campos || []).map(function (k) { return window.CAMPOS && window.CAMPOS[k] ? window.CAMPOS[k].n : k; }).join(', ') + ')';
     if (E.regla === 'silini' || E.regla === 'silfin') return 'la misma sílaba al ' + (E.regla === 'silini' ? 'principio' : 'final') + (E.foco ? ' (sílabas con ' + E.foco.toUpperCase() + ')' : '');
     return pr[E.par];
   }
-  function aplica() { O.regla = E.regla; O.foco = E.foco; O.par = E.par; O.modo = E.modo; O.mano = E.mano; O.pista = E.pista; O.pron = E.pron; S.guardaOpc(); }
+  function aplica() { O.regla = E.regla; O.foco = E.foco; O.par = E.par; O.modo = E.modo; O.mano = E.mano; O.pista = E.pista; O.pron = E.pron; if (E.campos && E.campos.length === 4) O.campos = E.campos.slice(); S.guardaOpc(); }
   function copia(t, donde) {
     function dicho(ok) { donde.textContent = ok ? '✔ Copiado.' : 'No se ha podido copiar: mantén pulsado el texto y cópialo a mano.'; }
     try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(function () { dicho(true); }, function () { dicho(false); }); return; } } catch (e) { }

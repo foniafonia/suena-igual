@@ -1,0 +1,2 @@
+/* Voz Piper (es_ES-sharvard-medium, CC BY 3.0) de BANCO_CAMPOS: palabra → fichero MP3. 13/11/2026. */
+(function(){var v=window.VOZ_SNAKE=window.VOZ_SNAKE||{},n={"gorro":"dda0aa486023fe81","bufanda":"8c1a851eaa0cad40","guante":"3b13b66a9e3ae240","abrigo":"03d09fa5c55c5e7d","zapatilla":"06e2104a341ce86b","cinturón":"06c4ddd5b8b83c1f","camiseta":"a269b5db2cf940a3","chaleco":"08232b04f40cad51"};for(var k in n)if(!v[k])v[k]=n[k];})();
