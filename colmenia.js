@@ -86,14 +86,16 @@
     ['kg', 'Par K / G', 'casa frente a gato', { regla: 'par', par: 'kg' }],
     ['sz', 'Par S / Z (seseo)', 'casa frente a caza', { regla: 'par', par: 'sz' }],
     ['fin', 'Sonido del final', 'mesa, casa… / sol, papel…', { regla: 'final' }],
-    ['sil', 'Número de sílabas', 'contar golpes de voz', { regla: 'silabas' }]
+    ['sil', 'Número de sílabas', 'contar golpes de voz', { regla: 'silabas' }],
+    ['silini', 'Sílaba del principio', 'pato, pala, papel…', { regla: 'silini' }],
+    ['silfin', 'Sílaba del final', 'luna, cuna, rana…', { regla: 'silfin' }]
   ];
   function opt(sel, lista, val) { sel.innerHTML = ''; lista.forEach(function (o) { var x = el('option', null, o[1]); x.value = o[0]; sel.appendChild(x); }); sel.value = val; }
   function campo(lbl, id, lista) { var d = el('div', 'campo'), l = el('label', null, lbl); l.htmlFor = id; var s = el('select'); s.id = id; d.appendChild(l); d.appendChild(s); return [d, s, lista]; }
   function enlaceParams() {
     if (!E.regla) E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron };   /* desde la portada, sin haber abierto «preparar» */
     var p = ['regla=' + E.regla];
-    if (E.regla === 'par') p.push('par=' + E.par); else if (E.foco && E.regla === 'inicio') p.push('foco=' + E.foco);
+    if (E.regla === 'par') p.push('par=' + E.par); else if (E.foco && (E.regla === 'inicio' || E.regla === 'silini' || E.regla === 'silfin')) p.push('foco=' + E.foco);
     if (E.pron === 'seseo') p.push('pron=seseo'); else p.push('pron=es');
     if (E.modo === 'dos') p.push('modo=dos'); if (E.mano === 7) p.push('mano=7'); if (E.pista) p.push('pista=1');
     return '?' + p.join('&');
@@ -112,10 +114,15 @@
       if (E.pron === 'seseo' && o[0] === 'sz') return;
       var c = o[3], on = c.regla === E.regla && (c.regla === 'par' ? c.par === E.par : (c.regla === 'inicio' ? c.foco === E.foco : true));
       var b = el('button', on ? 'on' : ''); b.type = 'button'; b.appendChild(document.createTextNode(o[1])); b.appendChild(el('small', null, o[2]));
-      b.onclick = function () { E.regla = c.regla; E.foco = c.foco || ''; if (c.par) E.par = c.par; pintaPrepara(); };
+      b.onclick = function () { var antes = E.regla; E.regla = c.regla; if (!((c.regla === 'silini' || c.regla === 'silfin') && (antes === 'silini' || antes === 'silfin'))) E.foco = c.foco || ''; if (c.par) E.par = c.par; pintaPrepara(); };
       ob.appendChild(b);
     });
     tq.appendChild(ob);
+    /* 13/11/2026: en los modos de sílaba, con qué consonante (las fáciles: m, p, s, t, l, d, n) */
+    if (E.regla === 'silini' || E.regla === 'silfin') {
+      var sc = campo('Sílabas con', 'pSilCon'); opt(sc[1], [['', 'Todas las fáciles (m, p, s, t, l, d, n)'], ['m', 'M (ma, me, mi…)'], ['p', 'P (pa, pe, pi…)'], ['s', 'S (sa, se, si…)'], ['t', 'T (ta, te, ti…)'], ['l', 'L (la, le, li…)'], ['d', 'D (da, de, di…)'], ['n', 'N (na, ne, no…)']], /^[mpstldn]$/.test(E.foco) ? E.foco : '');
+      sc[1].onchange = function () { E.foco = sc[1].value; }; tq.appendChild(sc[0]);
+    }
     tq.appendChild(el('h2', null, '2 · Cómo se juega'));
     var f = el('div', 'fila2');
     var m = campo('Jugadores', 'pModo'); f.appendChild(m[0]); opt(m[1], [['maquina', 'Contra la máquina'], ['dos', 'Dos jugadores']], E.modo); m[1].onchange = function () { E.modo = m[1].value; };
@@ -150,6 +157,7 @@
     if (E.regla === 'inicio') return 'el mismo sonido al principio' + (E.foco ? ' (con ' + (E.foco === 'r' ? 'R fuerte' : E.foco.toUpperCase()) + ' seguro)' : '');
     if (E.regla === 'final') return 'el mismo sonido al final';
     if (E.regla === 'silabas') return 'el mismo número de sílabas';
+    if (E.regla === 'silini' || E.regla === 'silfin') return 'la misma sílaba al ' + (E.regla === 'silini' ? 'principio' : 'final') + (E.foco ? ' (sílabas con ' + E.foco.toUpperCase() + ')' : '');
     return pr[E.par];
   }
   function aplica() { O.regla = E.regla; O.foco = E.foco; O.par = E.par; O.modo = E.modo; O.mano = E.mano; O.pista = E.pista; O.pron = E.pron; S.guardaOpc(); }

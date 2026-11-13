@@ -17,7 +17,11 @@
   var QS; try { QS = new URLSearchParams(location.search); } catch (e) { QS = { get: function () { return null; } }; }
 
   /* ====================== opciones ====================== */
-  var REGLAS = ['inicio', 'final', 'par', 'silabas'];
+  var REGLAS = ['inicio', 'final', 'par', 'silabas', 'silini', 'silfin'];
+  /* 13/11/2026 (pedido en Skool): «la misma sílaba» al principio (silini) o al final (silfin). De momento, sílabas fáciles:
+     consonante m, p, s, t, l, d o n + vocal. Con foco=m (o p, s…) las cuatro sílabas de la partida son de esa consonante. */
+  function esSil() { return OPC.regla === 'silini' || OPC.regla === 'silfin'; }
+  var SIL_FACIL = /^[mpstldn][aeiou]$/;
   var PARES = { rl: ['r', 'l'], bp: ['b', 'p'], td: ['t', 'd'], kg: ['k', 'g'], sz: ['s', 'z'], fz: ['f', 'z'] };
   var FIJO = REGLAS.indexOf(QS.get('regla')) >= 0;
   var OPC = {
@@ -48,18 +52,22 @@
     if (OPC.regla === 'inicio') return F.primero(w);
     if (OPC.regla === 'final') return F.ultimo(w);
     if (OPC.regla === 'silabas') return n >= 4 ? '4' : String(n);
+    if (esSil()) { var sl = (OPC.regla === 'silini' ? F.silabaIni(w) : F.silabaFin(w)).son; return SIL_FACIL.test(sl) ? sl : null; }
     var p = PARES[OPC.par], a = F.tiene(w, p[0]), b = F.tiene(w, p[1]);
     return a && !b ? p[0] : (b && !a ? p[1] : null);
   }
   function nombreClave(k) {
     if (OPC.regla === 'silabas') return k === '4' ? '4 o más sílabas' : k + ' sílaba' + (k === '1' ? '' : 's');
     if (OPC.regla === 'par') return 'tiene ' + F.corto(k);
+    if (esSil()) return String(k).toUpperCase();
     return F.corto(k);
   }
   function reglaTexto() {
     if (OPC.regla === 'inicio') return 'el mismo sonido al PRINCIPIO';
     if (OPC.regla === 'final') return 'el mismo sonido al FINAL';
     if (OPC.regla === 'silabas') return 'el mismo número de SÍLABAS';
+    if (OPC.regla === 'silini') return 'la misma SÍLABA al PRINCIPIO';
+    if (OPC.regla === 'silfin') return 'la misma SÍLABA al FINAL';
     var p = PARES[OPC.par]; return 'las dos con ' + F.corto(p[0]) + ' o las dos con ' + F.corto(p[1]);
   }
   function porQue(carta, arriba) {
@@ -67,12 +75,16 @@
     if (OPC.regla === 'inicio') return w + ' empieza por ' + F.corto(carta.son) + ' y ' + a + ' por ' + F.corto(arriba.son);
     if (OPC.regla === 'final') return w + ' acaba en ' + F.corto(carta.son) + ' y ' + a + ' en ' + F.corto(arriba.son);
     if (OPC.regla === 'silabas') return w + ' tiene ' + nombreClave(carta.son) + ' y ' + a + ' ' + nombreClave(arriba.son);
+    if (OPC.regla === 'silini') return w + ' empieza por ' + nombreClave(carta.son) + ' y ' + a + ' por ' + nombreClave(arriba.son);
+    if (OPC.regla === 'silfin') return w + ' acaba en ' + nombreClave(carta.son) + ' y ' + a + ' en ' + nombreClave(arriba.son);
     return w + ' tiene ' + F.corto(carta.son) + ' y ' + a + ' tiene ' + F.corto(arriba.son);
   }
   function porQueSi(carta, arriba) {
     if (OPC.regla === 'inicio') return 'las dos empiezan por ' + F.corto(carta.son);
     if (OPC.regla === 'final') return 'las dos acaban en ' + F.corto(carta.son);
     if (OPC.regla === 'silabas') return 'las dos tienen ' + nombreClave(carta.son);
+    if (OPC.regla === 'silini') return 'las dos empiezan por ' + nombreClave(carta.son);
+    if (OPC.regla === 'silfin') return 'las dos acaban en ' + nombreClave(carta.son);
     return 'las dos tienen ' + F.corto(carta.son);
   }
 
@@ -83,12 +95,13 @@
      diez palabras por grupo repartidas en los cuatro colores, y ocho cartas especiales. */
   function grupos() {
     var por = {};
-    BANCO.forEach(function (p) { if (OPC.pron === 'seseo' && F.tiene(p[0], 'z')) return; var k = clave(p[0], p[1]); if (k === null || k === undefined) return; (por[k] = por[k] || []).push(p); });
+    (esSil() ? BANCO.concat(window.BANCO_SILABAS || []) : BANCO).forEach(function (p) { if (OPC.pron === 'seseo' && F.tiene(p[0], 'z')) return; var k = clave(p[0], p[1]); if (k === null || k === undefined) return; (por[k] = por[k] || []).push(p); });
     if (OPC.regla === 'par') return PARES[OPC.par].map(function (k) { return [k, por[k] || []]; });
     var lista = Object.keys(por).map(function (k) { return [k, por[k]]; }).filter(function (x) { return x[1].length >= 5; }).sort(function (a, b) { return b[1].length - a[1].length; });
     var foco = OPC.foco ? (OPC.foco === 'r' ? 'rr' : OPC.foco) : '';
     var res = [];
-    if (foco && OPC.regla !== 'silabas') lista.forEach(function (x) { if (x[0] === foco) res.push(x); });
+    if (esSil()) { if (OPC.foco) lista.forEach(function (x) { if (res.length < 4 && x[0].charAt(0) === OPC.foco.charAt(0)) res.push(x); }); }
+    else if (foco && OPC.regla !== 'silabas') lista.forEach(function (x) { if (x[0] === foco) res.push(x); });
     lista.forEach(function (x) { if (res.length < 4 && res.indexOf(x) < 0) res.push(x); });
     return res;
   }
@@ -139,6 +152,8 @@
     if (OPC.regla === 'inicio') return 'que empiece igual';
     if (OPC.regla === 'final') return 'que acabe igual';
     if (OPC.regla === 'silabas') return 'que tenga las mismas sílabas';
+    if (OPC.regla === 'silini') return 'que empiece por la misma sílaba';
+    if (OPC.regla === 'silfin') return 'que acabe en la misma sílaba';
     var p = PARES[OPC.par]; return 'que tenga el mismo sonido (' + F.corto(p[0]) + ' o ' + F.corto(p[1]) + ')';
   }
   function guiaRegla() { return 'Toca una carta de abajo del mismo color o ' + igualTexto() + ' que la del centro. Si no tienes ninguna, toca «Robar carta».'; }
@@ -358,7 +373,7 @@
     var como = prec === null || tot < 4 ? 'sin dato' : (prec >= 0.85 ? 'bien' : (prec >= 0.6 ? 'regular' : 'le cuesta'));
     var ck = Object.keys(confs).sort(function (a, b) { return confs[b] - confs[a]; });
     return [
-      ['Regla', 'casan por color o por ' + reglaTexto().replace('PRINCIPIO', 'principio').replace('FINAL', 'final').replace('SÍLABAS', 'sílabas') + (OPC.foco && OPC.regla !== 'par' && OPC.regla !== 'silabas' ? ' (con ' + F.corto(OPC.foco === 'r' ? 'rr' : OPC.foco) + ' seguro)' : '')],
+      ['Regla', 'casan por color o por ' + reglaTexto().replace('PRINCIPIO', 'principio').replace('FINAL', 'final').replace('SÍLABAS', 'sílabas').replace('SÍLABA', 'sílaba') + (OPC.foco && OPC.regla !== 'par' && OPC.regla !== 'silabas' ? ' (con ' + F.corto(OPC.foco === 'r' ? 'rr' : OPC.foco) + ' seguro)' : '')],
       ['Partida', (OPC.modo === 'dos' ? 'dos jugadores' : 'contra la máquina') + ' · ' + (parcial ? 'sin terminar' : (G.ganador === 0 ? 'ganada' : 'perdida'))],
       ['Cartas echadas', jug.length + ' (' + son.length + ' por sonido, ' + (pal.length - son.length) + ' por color, ' + (jug.length - pal.length) + ' especiales)'],
       ['Por sonido', son.length ? son.slice(0, 8).map(function (x) { return x.w; }).join(', ') : 'ninguna'],
@@ -401,10 +416,13 @@
   $('bJugar').onclick = juegaYa;
   function muestraInicio() {
     $('inicioRegla').innerHTML = ''; $('inicioRegla').appendChild(document.createTextNode('Casan por color o por ')); $('inicioRegla').appendChild(el('b', null, reglaTexto()));
-    var ej = $('ejemploInicio'); if (ej && !ej.firstChild) ejemplo(ej);
+    var ej = $('ejemploInicio'); if (ej) { ej.innerHTML = ''; ejemplo(ej); }
     $('vInicio').className = 'velo on';
   }
-  function ejemplo(cont) { [['rojo', 'casa'], ['azul', 'queso'], ['verde', 'kilo']].forEach(function (x) { cont.appendChild(cartaDOM({ tipo: 'palabra', w: x[1], color: x[0], son: 'k' })); }); }
+  function ejemplo(cont) {
+    var ej = OPC.regla === 'silini' ? [['rojo', 'pato'], ['azul', 'pala'], ['verde', 'papel'], 'pa'] : (OPC.regla === 'silfin' ? [['rojo', 'luna'], ['azul', 'cuna'], ['verde', 'rana'], 'na'] : [['rojo', 'casa'], ['azul', 'queso'], ['verde', 'kilo'], 'k']);
+    ej.slice(0, 3).forEach(function (x) { cont.appendChild(cartaDOM({ tipo: 'palabra', w: x[1], color: x[0], son: ej[3] })); });
+  }
   muestraInicio();
   window.__suena = { ejemplo: ejemplo, cartaDOM: cartaDOM, OPC: OPC, PARES: PARES, REGLAS: REGLAS, estado: function () { return G; }, filas: filas, juega: juegaYa, muestraInicio: muestraInicio, guardaOpc: guardaOpc,
     intenta: intenta, robar: robar, vale: vale, clave: clave, grupos: grupos, nombreClave: nombreClave, reglaTexto: reglaTexto, nuevaBaraja: nuevaBaraja, turnoMaquina: turnoMaquina };
