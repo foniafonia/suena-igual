@@ -27,7 +27,7 @@
      consonante m, p, s, t, l, d o n + vocal. Con foco=m (o p, s…) las cuatro sílabas de la partida son de esa consonante. */
   function esSil() { return OPC.regla === 'silini' || OPC.regla === 'silfin'; }
   var SIL_FACIL = /^[mpstldn][aeiou]$/;
-  var PARES = { rl: ['r', 'l'], bp: ['b', 'p'], td: ['t', 'd'], kg: ['k', 'g'], sz: ['s', 'z'], fz: ['f', 'z'] };
+  var PARES = { rl: ['r', 'l'], bp: ['b', 'p'], td: ['t', 'd'], bd: ['b', 'd'], kg: ['k', 'g'], sz: ['s', 'z'], fz: ['f', 'z'] };
   var FIJO = REGLAS.indexOf(QS.get('regla')) >= 0;
   var OPC = {
     regla: FIJO ? QS.get('regla') : 'inicio',

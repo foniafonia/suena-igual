@@ -83,6 +83,7 @@
     ['rl', 'Par R / L', 'pera frente a pelo', { regla: 'par', par: 'rl' }],
     ['bp', 'Par B / P', 'bota frente a pato', { regla: 'par', par: 'bp' }],
     ['td', 'Par T / D', 'tos frente a dos', { regla: 'par', par: 'td' }],
+    ['bd', 'Par B / D', 'boca frente a dedo', { regla: 'par', par: 'bd' }],
     ['kg', 'Par K / G', 'casa frente a gato', { regla: 'par', par: 'kg' }],
     ['sz', 'Par S / Z (seseo)', 'casa frente a caza', { regla: 'par', par: 'sz' }],
     ['fin', 'Sonido del final', 'mesa, casa… / sol, papel…', { regla: 'final' }],
@@ -162,7 +163,7 @@
     var fv = el('div'); fv.style.textAlign = 'center'; fv.appendChild(bv); tq.appendChild(fv);
   }
   function resumenRegla() {
-    var pr = { rl: 'las dos con R o las dos con L', bp: 'las dos con B o las dos con P', td: 'las dos con T o las dos con D', kg: 'las dos con K o las dos con G', sz: 'las dos con S o las dos con Z', fz: 'las dos con F o las dos con Z' };
+    var pr = { rl: 'las dos con R o las dos con L', bp: 'las dos con B o las dos con P', td: 'las dos con T o las dos con D', bd: 'las dos con B o las dos con D', kg: 'las dos con K o las dos con G', sz: 'las dos con S o las dos con Z', fz: 'las dos con F o las dos con Z' };
     if (E.regla === 'inicio') return 'el mismo sonido al principio' + (E.foco ? ' (con ' + (E.foco === 'r' ? 'R fuerte' : E.foco.toUpperCase()) + ' seguro)' : '');
     if (E.regla === 'final') return 'el mismo sonido al final';
     if (E.regla === 'silabas') return 'el mismo número de sílabas';

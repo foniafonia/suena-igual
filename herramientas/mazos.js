@@ -7,7 +7,7 @@ var dir = path.join(__dirname, '..');
 var html = fs.readFileSync(path.join(dir, 'imprimir.html'), 'utf8').replace(/<script src="([^"?]+)\?v=\d+"><\/script>/g, function (m, f) { return '<script>' + fs.readFileSync(path.join(dir, f), 'utf8') + '</script>'; });
 var d = new JSDOM(html, { runScripts: 'dangerously', url: 'https://foniafonia.github.io/suena-igual/imprimir.html?yo=1' });
 var w = d.window, doc = w.document, $ = function (s) { return doc.querySelector(s); };
-var VARIANTES = [['inicio'], ['final'], ['silabas'], ['par', 'rl'], ['par', 'bp'], ['par', 'td'], ['par', 'kg'], ['par', 'sz'], ['par', 'fz'], ['silini'], ['silfin'], ['campo']], out = [];
+var VARIANTES = [['inicio'], ['final'], ['silabas'], ['par', 'rl'], ['par', 'bp'], ['par', 'td'], ['par', 'bd'], ['par', 'kg'], ['par', 'sz'], ['par', 'fz'], ['silini'], ['silfin'], ['campo']], out = [];
 ['es', 'seseo'].forEach(function (pron) {
   VARIANTES.forEach(function (v) {
     if (pron === 'seseo' && v[1] === 'sz') return;
