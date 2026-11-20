@@ -36,6 +36,9 @@
     modo: QS.get('modo') === 'dos' ? 'dos' : 'maquina',
     mano: QS.get('mano') === '7' ? 7 : 5,
     pista: QS.get('pista') === '1',
+    /* 20/11/2026 (pedido en Skool): ruido de fondo opcional (ruido.js). El audio propio no puede ir en un enlace. */
+    ruido: ['calle', 'cafe', 'blanco'].indexOf(QS.get('ruido')) >= 0 ? QS.get('ruido') : 'no',
+    nivel: QS.get('nivel') === '1' ? 1 : (QS.get('nivel') === '3' ? 3 : 2),
     campos: camposDe(QS.get('campos')),
     /* Con seseo (Latinoamérica, Canarias, buena parte de Andalucía) «cena» y «zapato» empiezan por S,
        pero la voz del juego es de España y las dice con Z. Para no contradecir lo que se oye, con
@@ -47,7 +50,7 @@
     })()
   };
   var KOPC = 'suena-igual-opc';
-  if (!FIJO) { try { var g = JSON.parse(localStorage.getItem(KOPC) || 'null'); if (g && REGLAS.indexOf(g.regla) >= 0) { OPC.regla = g.regla; OPC.foco = g.foco || ''; OPC.par = PARES[g.par] ? g.par : 'rl'; OPC.modo = g.modo === 'dos' ? 'dos' : 'maquina'; OPC.mano = g.mano === 7 ? 7 : 5; OPC.pista = !!g.pista; if (g.campos && !QS.get('campos')) OPC.campos = camposDe(g.campos.join ? g.campos.join(',') : g.campos); if (!QS.get('pron') && (g.pron === 'seseo' || g.pron === 'es')) OPC.pron = g.pron; } } catch (e) { } }
+  if (!FIJO) { try { var g = JSON.parse(localStorage.getItem(KOPC) || 'null'); if (g && REGLAS.indexOf(g.regla) >= 0) { OPC.regla = g.regla; OPC.foco = g.foco || ''; OPC.par = PARES[g.par] ? g.par : 'rl'; OPC.modo = g.modo === 'dos' ? 'dos' : 'maquina'; OPC.mano = g.mano === 7 ? 7 : 5; OPC.pista = !!g.pista; if (g.campos && !QS.get('campos')) OPC.campos = camposDe(g.campos.join ? g.campos.join(',') : g.campos); if (!QS.get('pron') && (g.pron === 'seseo' || g.pron === 'es')) OPC.pron = g.pron; if (!QS.get('ruido') && ['calle', 'cafe', 'blanco'].indexOf(g.ruido) >= 0) OPC.ruido = g.ruido; if (!QS.get('nivel') && (g.nivel === 1 || g.nivel === 3)) OPC.nivel = g.nivel; } } catch (e) { } }
   if (FIJO) document.body.className += ' fijado';
   if (OPC.pron === 'seseo' && OPC.par === 'sz') OPC.par = 'rl';
   function guardaOpc() { if (FIJO) return; try { localStorage.setItem(KOPC, JSON.stringify(OPC)); } catch (e) { } }
@@ -147,6 +150,31 @@
     try { if (voz) voz.pause(); voz = new Audio('voz/' + window.VOZ_SNAKE[w] + '.mp3'); var p = voz.play(); if (p && p.catch) p.catch(function () { }); } catch (e) { }
   }
 
+  /* ====================== ruido de fondo (20/11/2026) ====================== */
+  /* Suena solo mientras se juega: no en pausa, no al acabar, no con la pestaña oculta ni con el sonido apagado. */
+  var RM = window.RuidoSuena ? window.RuidoSuena.crea(function () { audioListo(); return actx; }) : null;
+  function ruidoSuena() { return !!(G && !G.fin && sonido && !document.hidden && $('vPausa').className.indexOf(' on') < 0); }
+  function ruidoAjusta() {
+    if (!RM) return;
+    if (OPC.ruido !== 'no' && ruidoSuena()) { if (RM.arranca(OPC.ruido, OPC.nivel) && G) G.ruidoUsado[OPC.ruido + ':' + OPC.nivel] = 1; } else RM.para();
+  }
+  function ruidoTexto() {
+    var R = window.RuidoSuena, k = G ? Object.keys(G.ruidoUsado) : [];
+    if (!R || !k.length) return 'sin ruido';
+    return k.map(function (x) { var q = x.split(':'); return R.descripcion(q[0], parseInt(q[1], 10)); }).join(' y luego ') + ' (simulado en el aparato; el nivel es aproximado)';
+  }
+  function pintaPausaRuido() {
+    var c = $('pausaRuido'); if (!c) return; c.innerHTML = '';
+    if (OPC.ruido === 'no' || !window.RuidoSuena) return;
+    var R = window.RuidoSuena;
+    c.appendChild(el('p', 'nota', 'Ruido de fondo: ' + R.descripcion(OPC.ruido, OPC.nivel)));
+    var menos = el('button', 'btn s mini', '− Menos ruido'), mas = el('button', 'btn s mini', '+ Más ruido'); menos.type = 'button'; mas.type = 'button';
+    menos.onclick = function () { if (OPC.nivel > 1) { OPC.nivel--; guardaOpc(); pintaPausaRuido(); } };
+    mas.onclick = function () { if (OPC.nivel < 3) { OPC.nivel++; guardaOpc(); pintaPausaRuido(); } };
+    var f = el('div', 'minis'); f.appendChild(menos); f.appendChild(mas); c.appendChild(f);
+  }
+  document.addEventListener('visibilitychange', ruidoAjusta);
+
   /* ====================== estado de la partida ====================== */
   var G = null;
   /* Primera partida guiada (18/10/2026): la mujer de José lo abrió en el móvil y lo primero fue «¿qué tengo que hacer?».
@@ -182,7 +210,7 @@
   function nuevaPartida() {
     var b = nuevaBaraja();
     G = { mazo: b.cartas, grupos: b.grupos, descarte: [], manos: [[], []], turno: 0, color: null, roba: 0, inicio: ahora(), tJug: ahora(),
-      turnosH: 1, jug: [], intentos: [], robadas: [0, 0], fin: false, ganador: -1, enviado: false, ocupado: false, robo: false, ultimaCarta: [false, false] };
+      turnosH: 1, ruidoUsado: {}, jug: [], intentos: [], robadas: [0, 0], fin: false, ganador: -1, enviado: false, ocupado: false, robo: false, ultimaCarta: [false, false] };
     for (var k = 0; k < OPC.mano; k++) { G.manos[0].push(G.mazo.pop()); G.manos[1].push(G.mazo.pop()); }
     /* la primera de arriba siempre es una palabra */
     var i = G.mazo.length - 1; while (i >= 0 && G.mazo[i].tipo !== 'palabra') i--;
@@ -371,7 +399,7 @@
     var v = $('vTapa'); $('tapaQuien').textContent = 'Turno del ' + nombreJ(j).toLowerCase(); $('tapaQuien').className = 'j' + j; v.className = 'velo on';
   }
   function gana(j) {
-    G.fin = true; G.ganador = j; sfxFin(); pinta();
+    G.fin = true; G.ganador = j; if (RM) RM.para(); sfxFin(); pinta();
     setTimeout(fin, 900);
   }
 
@@ -385,7 +413,7 @@
     var med = mediana(jug.concat(mal).map(function (x) { return x.ms; })), seg = Math.max(1, Math.round((ahora() - G.inicio) / 1000));
     var como = prec === null || tot < 4 ? 'sin dato' : (prec >= 0.85 ? 'bien' : (prec >= 0.6 ? 'regular' : 'le cuesta'));
     var ck = Object.keys(confs).sort(function (a, b) { return confs[b] - confs[a]; });
-    return [
+    var R = [
       ['Regla', 'casan por color o por ' + reglaTexto().replace('PRINCIPIO', 'principio').replace('FINAL', 'final').replace('SÍLABAS', 'sílabas').replace('SÍLABA', 'sílaba').replace('FAMILIA', 'familia') + (OPC.foco && OPC.regla !== 'par' && OPC.regla !== 'silabas' ? ' (con ' + F.corto(OPC.foco === 'r' ? 'rr' : OPC.foco) + ' seguro)' : '')],
       ['Partida', (OPC.modo === 'dos' ? 'dos jugadores' : 'contra la máquina') + ' · ' + (parcial ? 'sin terminar' : (G.ganador === 0 ? 'ganada' : 'perdida'))],
       ['Cartas echadas', jug.length + ' (' + son.length + ' por sonido, ' + (pal.length - son.length) + ' por color, ' + (jug.length - pal.length) + ' especiales)'],
@@ -400,8 +428,11 @@
       ['Qué le cuesta', ck.length ? 'cree que suenan igual: ' + ck.slice(0, 2).join(', ') : (mal.length ? 'echar sin mirar el color ni el sonido' : '—')],
       ['Qué toca ahora', como === 'bien' ? 'cambiar de regla o de sonido' : (como === 'sin dato' ? 'jugar una partida entera' : 'repetir esta regla con la pista de sonido activada')]
     ];
+    R.splice(2, 0, ['Ruido de fondo', ruidoTexto()]);
+    return R;
   }
   function fin() {
+    if (RM) RM.para();
     var v = $('vFin'); v.className = 'velo on';
     var gano = G.ganador === 0;
     $('finTit').textContent = OPC.modo === 'dos' ? '¡Gana el ' + nombreJ(G.ganador).toLowerCase() + '!' : (gano ? '¡Has ganado!' : 'Esta vez gana la máquina');
@@ -416,14 +447,14 @@
   function juegaYa() {
     audioListo(); guardaOpc();
     ['vInicio', 'vFin', 'vPausa'].forEach(function (x) { $(x).className = 'velo'; });
-    nuevaPartida(); aviso('Toca la carta del centro para oír su palabra.', '');
+    nuevaPartida(); aviso('Toca la carta del centro para oír su palabra.', ''); ruidoAjusta();
     if (OPC.modo === 'dos') { pinta(); tapa(0); } else pinta();
   }
   alTocar($('bRobar'), robar);
   $('bTapa').onclick = function () { $('vTapa').className = 'velo'; pinta(); };
-  $('bSonido').onclick = function () { sonido = !sonido; $('bSonido').textContent = sonido ? '🔊' : '🔇'; audioListo(); };
-  $('bPausa').onclick = function () { if (G && !G.fin) $('vPausa').className = 'velo on'; };
-  $('bSigue').onclick = function () { $('vPausa').className = 'velo'; };
+  $('bSonido').onclick = function () { sonido = !sonido; $('bSonido').textContent = sonido ? '🔊' : '🔇'; audioListo(); ruidoAjusta(); };
+  $('bPausa').onclick = function () { if (G && !G.fin) { $('vPausa').className = 'velo on'; ruidoAjusta(); pintaPausaRuido(); } };
+  $('bSigue').onclick = function () { $('vPausa').className = 'velo'; ruidoAjusta(); };
   $('bAcabar').onclick = function () { $('vPausa').className = 'velo'; if (G && !G.fin) { G.fin = true; G.ganador = -1; fin(); } };
   $('bOtra').onclick = juegaYa;
   $('bJugar').onclick = juegaYa;
@@ -438,5 +469,5 @@
   }
   muestraInicio();
   window.__suena = { ejemplo: ejemplo, cartaDOM: cartaDOM, OPC: OPC, PARES: PARES, REGLAS: REGLAS, estado: function () { return G; }, filas: filas, juega: juegaYa, muestraInicio: muestraInicio, guardaOpc: guardaOpc,
-    intenta: intenta, robar: robar, vale: vale, clave: clave, grupos: grupos, nombreClave: nombreClave, reglaTexto: reglaTexto, nuevaBaraja: nuevaBaraja, turnoMaquina: turnoMaquina };
+    intenta: intenta, robar: robar, vale: vale, clave: clave, grupos: grupos, nombreClave: nombreClave, reglaTexto: reglaTexto, nuevaBaraja: nuevaBaraja, turnoMaquina: turnoMaquina, ruido: RM, audioListo: audioListo, ruidoTexto: ruidoTexto };
 })();

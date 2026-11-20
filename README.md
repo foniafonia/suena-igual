@@ -14,6 +14,7 @@ Se juzga por el sonido, no por la letra. Si se intenta echar una carta que no va
 - Contra la máquina o dos jugadores en el mismo aparato.
 - La regla se elige en «Preparar una partida» o por enlace: `?regla=inicio|final|par|silabas&foco=r&par=rl|bp|td|bd|kg|sz&modo=dos&mano=7&pista=1&pron=es|seseo`.
 - Pronunciación: con seseo (`pron=seseo`, y por defecto en aparatos con español que no sea de España) salen de la baraja las palabras con Z, CE o CI, porque la voz es de España, y no se ofrece el par S/Z.
+- Ruido de fondo opcional (20/11/2026, pedido de E. G. en Skool): `ruido.js` lo fabrica en el aparato con Web Audio (calle, cafetería, ruido blanco; nada se descarga). `?ruido=calle|cafe|blanco&nivel=1|2|3`, o en «Preparar una partida» → «3 · Ruido de fondo», con botón de prueba y «Mi propio audio» (se queda en el aparato y no va en el enlace). Es ruido simulado y el nivel es aproximado, sin calibrar en decibelios. Suena solo durante la partida (no en pausa, ni con el sonido apagado, ni con la pestaña oculta), se puede subir o bajar desde la pausa y el informe de la partida dice qué ruido hubo. Prueba sin navegador: `node herramientas/prueba-ruido.js`.
 - Enlace por canal para saber de dónde llega la gente: `?c=wa|tg|fb|ig|sk|ln`. Con `?yo=1`, un aparato deja de contar.
 - Sin registro; las partidas no salen del aparato. Privacidad: `privacidad.html`. Estadísticas: `estadisticas.html`.
 - Material de apoyo: no sustituye a la logopeda.

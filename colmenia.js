@@ -61,7 +61,7 @@
   var bD = el('button', 'btn s ancho'); bD.type = 'button'; bD.appendChild(document.createTextNode('👥 Dos jugadores')); bD.appendChild(el('small', null, 'en el mismo aparato, pasándolo')); tp.appendChild(bD);
   var bP = el('button', 'btn s ancho'); bP.type = 'button'; bP.appendChild(document.createTextNode('🧑‍⚕️ Preparar una partida')); bP.appendChild(el('small', null, 'Elige el sonido o el par y manda el enlace a la familia')); tp.appendChild(bP);
   var bImp = el('a', 'btn imp ancho'); bImp.href = 'imprimir.html'; bImp.appendChild(document.createTextNode('🖨️ Imprimir la baraja')); bImp.appendChild(el('small', null, '54 cartas para recortar y jugar en la mesa · PDF listo')); bImp.onclick = function () { bImp.href = 'imprimir.html' + enlaceParams(); suma('suena_imprimir'); }; tp.appendChild(bImp);
-  var ch = el('ul', 'trabaja'); ['Conciencia fonológica', 'Pares mínimos', 'Sonido inicial y final', 'Sílabas', 'Lectura'].forEach(function (x) { ch.appendChild(el('li', null, x)); }); tp.appendChild(ch);
+  var ch = el('ul', 'trabaja'); ['Conciencia fonológica', 'Pares mínimos', 'Sonido inicial y final', 'Sílabas', 'Lectura', 'Escucha con ruido (opcional)'].forEach(function (x) { ch.appendChild(el('li', null, x)); }); tp.appendChild(ch);
   tp.appendChild(el('p', 'mini', 'De 6 años en adelante, para quien ya lee palabras · móvil, tableta u ordenador · 241 palabras con voz'));
   tp.appendChild(tarjeta('portada', 'Más juegos como este', 'En ColmenIA, la comunidad de logopedas y maestras que usan la IA en su trabajo.'));
   var idea = el('a', 'idea', '💡 ¿Echas algo en falta o has visto un fallo? Cuéntalo en la comunidad'); idea.href = SKOOL; idea.target = '_blank'; idea.rel = 'noopener'; idea.onclick = function () { suma('suena_skool_idea_portada'); }; tp.appendChild(idea);
@@ -95,21 +95,24 @@
   function opt(sel, lista, val) { sel.innerHTML = ''; lista.forEach(function (o) { var x = el('option', null, o[1]); x.value = o[0]; sel.appendChild(x); }); sel.value = val; }
   function campo(lbl, id, lista) { var d = el('div', 'campo'), l = el('label', null, lbl); l.htmlFor = id; var s = el('select'); s.id = id; d.appendChild(l); d.appendChild(s); return [d, s, lista]; }
   function enlaceParams() {
-    if (!E.regla) E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron, campos: (O.campos || []).slice() };   /* desde la portada, sin haber abierto «preparar» */
+    if (!E.regla) E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron, ruido: O.ruido, nivel: O.nivel, campos: (O.campos || []).slice() };   /* desde la portada, sin haber abierto «preparar» */
     var p = ['regla=' + E.regla];
     if (E.regla === 'par') p.push('par=' + E.par); else if (E.foco && (E.regla === 'inicio' || E.regla === 'silini' || E.regla === 'silfin')) p.push('foco=' + E.foco);
     if (E.regla === 'campo' && E.campos && E.campos.length === 4) p.push('campos=' + E.campos.join(','));
     if (E.pron === 'seseo') p.push('pron=seseo'); else p.push('pron=es');
     if (E.modo === 'dos') p.push('modo=dos'); if (E.mano === 7) p.push('mano=7'); if (E.pista) p.push('pista=1');
+    if (E.ruido && E.ruido !== 'no' && E.ruido !== 'propio') p.push('ruido=' + E.ruido + '&nivel=' + (E.nivel || 2));   /* el audio propio no puede ir en un enlace */
     return '?' + p.join('&');
   }
   function abrePrepara() {
-    E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron, campos: (O.campos || []).slice() };
+    E = { regla: O.regla, foco: O.foco, par: O.par, modo: O.modo, mano: O.mano, pista: O.pista, pron: O.pron, ruido: O.ruido, nivel: O.nivel, campos: (O.campos || []).slice() };
     portada.className = 'velo portada'; $('vInicio').className = 'velo'; $('vFin').className = 'velo';
     pintaPrepara(); prep.className = 'velo portada on';
   }
+  function textoResumen() { return 'Casan por color o por ' + resumenRegla() + (E.ruido && E.ruido !== 'no' && window.RuidoSuena ? ' · con ruido de fondo: ' + window.RuidoSuena.descripcion(E.ruido, E.nivel || 2) : ''); }
+  function paraPrueba() { try { if (S.ruido) S.ruido.para(); } catch (e) { } }
   function pintaPrepara() {
-    tq.innerHTML = '';
+    paraPrueba(); tq.innerHTML = '';
     tq.appendChild(el('h1', null, '🧑‍⚕️ Prepara la partida'));
     tq.appendChild(el('h2', null, '1 · ¿Qué quieres trabajar?'));
     var ob = el('div', 'objs');
@@ -141,11 +144,35 @@
     var pr = campo('Pronunciación', 'pPron'); f.appendChild(pr[0]); opt(pr[1], [['es', 'España: Z y S distintas'], ['seseo', 'Con seseo: Latinoamérica, Canarias…']], E.pron);
     pr[1].onchange = function () { E.pron = pr[1].value; if (E.pron === 'seseo' && E.par === 'sz' && E.regla === 'par') E.par = 'rl'; pintaPrepara(); };
     tq.appendChild(f);
+    /* 20/11/2026 (pedido en Skool): entrenar la escucha con ruido de fondo */
+    tq.appendChild(el('h2', null, '3 · Ruido de fondo (opcional)'));
+    var fr = el('div', 'fila2'), RS = window.RuidoSuena;
+    if (RS && S.ruido) {
+      var rt = campo('Ruido', 'pRuido'); fr.appendChild(rt[0]);
+      opt(rt[1], [['no', 'Sin ruido'], ['calle', 'Calle (tráfico lejano)'], ['cafe', 'Cafetería (murmullo de gente)'], ['blanco', 'Ruido blanco (siseo)'], ['propio', 'Mi propio audio (la clase, el patio…)']], E.ruido || 'no');
+      rt[1].onchange = function () { E.ruido = rt[1].value; pintaPrepara(); };
+      var rn = campo('Cuánto', 'pNivel'); fr.appendChild(rn[0]);
+      opt(rn[1], [['1', 'Suave'], ['2', 'Medio'], ['3', 'Fuerte']], String(E.nivel || 2)); rn[1].onchange = function () { E.nivel = parseInt(rn[1].value, 10); S.ruido.cambia(E.nivel); var rr = $('pResumen'); if (rr) rr.textContent = textoResumen(); };
+      tq.appendChild(fr);
+      if (E.ruido === 'propio') {
+        var fa = el('div', 'campo'), fl = el('label', null, 'Elige un audio de este aparato'); fl.htmlFor = 'pRuidoArchivo';
+        var fi = el('input'); fi.type = 'file'; fi.accept = 'audio/*'; fi.id = 'pRuidoArchivo';
+        fi.onchange = function () { S.ruido.elige(fi.files && fi.files[0]); pintaPrepara(); };
+        fa.appendChild(fl); fa.appendChild(fi); tq.appendChild(fa);
+        tq.appendChild(el('p', 'nota', S.ruido.hayPropio() ? 'Audio elegido: ' + S.ruido.nombrePropio() + '. Se queda en este aparato: no se sube a ningún sitio y no puede ir en el enlace para la familia.' : 'Todavía no has elegido ningún audio. Sin audio, se juega sin ruido.'));
+      }
+      if (E.ruido && E.ruido !== 'no') {
+        var bpr = el('button', 'btn s mini', '🔊 Probar el ruido'); bpr.type = 'button';
+        bpr.onclick = function () { if (S.ruido.estado().on) { S.ruido.para(); bpr.textContent = '🔊 Probar el ruido'; } else { S.audioListo(); if (S.ruido.arranca(E.ruido, E.nivel || 2)) bpr.textContent = '⏹ Parar la prueba'; } };
+        var fp = el('div'); fp.style.textAlign = 'center'; fp.appendChild(bpr); tq.appendChild(fp);
+        tq.appendChild(el('p', 'nota', 'Ruido simulado en el aparato, sin descargar nada. El nivel es aproximado: no está medido en decibelios. Prueba cada nivel con la voz del juego antes de usarlo con un niño.'));
+      }
+    }
     if (E.pron === 'seseo') tq.appendChild(el('p', 'nota', 'Con seseo salen de la baraja las palabras con Z, CE o CI: la voz del juego es de España y las pronuncia con Z.'));
-    var r = el('div', 'resumen', 'Casan por color o por ' + resumenRegla()); tq.appendChild(r);
-    var bj = el('button', 'btn', '▶ Jugar ahora'); bj.type = 'button'; bj.onclick = function () { aplica(); prep.className = 'velo portada'; S.muestraInicio(); suma('suena_partida_preparada'); };
+    var r = el('div', 'resumen', textoResumen()); r.id = 'pResumen'; tq.appendChild(r);
+    var bj = el('button', 'btn', '▶ Jugar ahora'); bj.type = 'button'; bj.onclick = function () { paraPrueba(); aplica(); prep.className = 'velo portada'; S.muestraInicio(); suma('suena_partida_preparada'); };
     var be = el('button', 'btn s', '🔗 Enlace para la familia'); be.type = 'button';
-    var bi = el('button', 'btn imp', '🖨️ Imprimir esta baraja'); bi.type = 'button'; bi.onclick = function () { suma('suena_imprimir'); location.href = 'imprimir.html' + enlaceParams(); };
+    var bi = el('button', 'btn imp', '🖨️ Imprimir esta baraja'); bi.type = 'button'; bi.onclick = function () { paraPrueba(); suma('suena_imprimir'); location.href = 'imprimir.html' + enlaceParams(); };
     var fila = el('div'); fila.style.textAlign = 'center'; fila.appendChild(bj); fila.appendChild(be); fila.appendChild(bi); tq.appendChild(fila);
     var caja = el('div', 'enlace'); tq.appendChild(caja);
     be.onclick = function () {
@@ -159,7 +186,7 @@
       var mm = el('div', 'minis'); mm.appendChild(bc); mm.appendChild(bs); caja.appendChild(mm); caja.appendChild(dicho);
       suma('suena_enlace_familia');
     };
-    var bv = el('button', 'btn s mini', '← Volver'); bv.type = 'button'; bv.onclick = function () { prep.className = 'velo portada'; portada.className = 'velo portada on'; };
+    var bv = el('button', 'btn s mini', '← Volver'); bv.type = 'button'; bv.onclick = function () { paraPrueba(); prep.className = 'velo portada'; portada.className = 'velo portada on'; };
     var fv = el('div'); fv.style.textAlign = 'center'; fv.appendChild(bv); tq.appendChild(fv);
   }
   function resumenRegla() {
@@ -171,7 +198,7 @@
     if (E.regla === 'silini' || E.regla === 'silfin') return 'la misma sílaba al ' + (E.regla === 'silini' ? 'principio' : 'final') + (E.foco ? ' (sílabas con ' + E.foco.toUpperCase() + ')' : '');
     return pr[E.par];
   }
-  function aplica() { O.regla = E.regla; O.foco = E.foco; O.par = E.par; O.modo = E.modo; O.mano = E.mano; O.pista = E.pista; O.pron = E.pron; if (E.campos && E.campos.length === 4) O.campos = E.campos.slice(); S.guardaOpc(); }
+  function aplica() { O.regla = E.regla; O.foco = E.foco; O.par = E.par; O.modo = E.modo; O.mano = E.mano; O.pista = E.pista; O.pron = E.pron; O.ruido = (E.ruido === 'propio' && !(S.ruido && S.ruido.hayPropio())) ? 'no' : (E.ruido || 'no'); O.nivel = E.nivel || 2; if (E.campos && E.campos.length === 4) O.campos = E.campos.slice(); S.guardaOpc(); }
   function copia(t, donde) {
     function dicho(ok) { donde.textContent = ok ? '✔ Copiado.' : 'No se ha podido copiar: mantén pulsado el texto y cópialo a mano.'; }
     try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(function () { dicho(true); }, function () { dicho(false); }); return; } } catch (e) { }
